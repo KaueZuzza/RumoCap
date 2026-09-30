@@ -1,5 +1,7 @@
 # RumoCap — Guia Comercial de Capitão Poço
 
+[![Testes](https://github.com/KaueZuzza/RumoCap/actions/workflows/testes.yml/badge.svg)](https://github.com/KaueZuzza/RumoCap/actions/workflows/testes.yml)
+
 **RumoCap** (de *rumo*: caminho, direção; e *Cap*: Capitão Poço) é um guia digital **informativo** sobre
 estabelecimentos comerciais e serviços do município de Capitão Poço – PA. O visitante conhece os
 estabelecimentos, suas categorias, o que oferecem, o horário de funcionamento, a localização e as formas
@@ -8,6 +10,36 @@ de contato.
 > Não é um sistema de vendas: não há carrinho, pagamentos, estoque, pedidos ou delivery.
 > O banco começa **sem nenhum estabelecimento**: apenas as 9 categorias iniciais. Os dados reais são
 > cadastrados pela área administrativa.
+
+<p align="center">
+  <img src="docs/img/inicio-claro.png" alt="Página inicial do RumoCap no modo claro" width="49%">
+  <img src="docs/img/apresentacao.png" alt="Tela de apresentação do RumoCap" width="49%">
+</p>
+<p align="center">
+  <img src="docs/img/mapa-satelite.jpg" alt="Mapa de Capitão Poço com imagens de satélite" width="49%">
+  <img src="docs/img/mapa-escuro.png" alt="Mapa de ruas de Capitão Poço no modo escuro" width="49%">
+</p>
+
+## Começando
+
+Pré-requisitos no Windows: **JDK 21** (por exemplo [Eclipse Temurin](https://adoptium.net) ou
+[Amazon Corretto](https://aws.amazon.com/corretto/)), **PostgreSQL 18** e **Git**. O Maven não precisa
+ser instalado (o projeto traz o Maven Wrapper).
+
+```powershell
+git clone https://github.com/KaueZuzza/RumoCap.git
+cd RumoCap
+
+# 1. cria o servidor PostgreSQL do projeto (porta 5434), o banco e o arquivo local de senhas
+powershell -ExecutionPolicy Bypass -File database\servidor.ps1 criar
+
+# 2. inicia o site (troque pelo caminho do seu JDK 21, se o JAVA_HOME apontar para outra versão)
+$env:JAVA_HOME = "C:\caminho\do\jdk-21"
+.\mvnw.cmd spring-boot:run
+```
+
+Depois acesse http://localhost:8080. O usuário e a senha da área administrativa estão no arquivo
+`config/application.properties` gerado no passo 1 (veja *Senhas e configuração*).
 
 ## Tecnologias
 
@@ -26,6 +58,7 @@ RumoCap/
 ├── database/
 │   ├── servidor.ps1              cria, liga e desliga o PostgreSQL exclusivo do projeto (porta 5434)
 │   └── criar-banco.sql           cria o usuário e o banco "rumocap"
+├── docs/img/                     capturas de tela usadas neste README
 ├── src/
 │   ├── main/
 │   │   ├── java/br/com/rumocap/
@@ -58,6 +91,7 @@ RumoCap/
 ├── uploads/                      imagens enviadas (criada automaticamente)
 ├── mvnw, mvnw.cmd, .mvn/         Maven Wrapper (não é preciso instalar o Maven)
 ├── pom.xml                       dependências e build (Maven)
+├── .github/workflows/testes.yml  compila e roda os testes no GitHub a cada envio
 ├── .gitignore
 └── README.md
 ```
@@ -75,8 +109,7 @@ O RumoCap tem um **servidor PostgreSQL só dele**, separado dos bancos de outros
 | Arquivos do servidor | `%LOCALAPPDATA%\RumoCap\pgdata` (log em `%LOCALAPPDATA%\RumoCap\postgres.log`) |
 | Início automático | atalho *RumoCap - PostgreSQL* na pasta Inicializar do Windows |
 
-Ele já foi criado nesta máquina. Para criar em outro computador (com o PostgreSQL 18 instalado), por exemplo depois
-de clonar o repositório:
+Para criá-lo (com o PostgreSQL 18 instalado; se a pasta `bin` for outra, informe-a com `-PostgresBin`):
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File database\servidor.ps1 criar
@@ -107,12 +140,12 @@ em `config/application.properties`.
 
 ## Como executar
 
-Pré-requisitos: **JDK 21** (nesta máquina: `C:\Users\ZuzzaXrc\.jdks\corretto-21.0.3`) e o servidor do
-banco ligado (ele liga sozinho ao entrar no Windows).
+Pré-requisitos: **JDK 21**, o servidor do banco ligado (ele liga sozinho ao entrar no Windows) e o arquivo
+`config/application.properties` (criado pelo `servidor.ps1 criar`).
 
 ```powershell
 # na pasta do projeto, no PowerShell
-$env:JAVA_HOME = "C:\Users\ZuzzaXrc\.jdks\corretto-21.0.3"   # o JAVA_HOME padrão desta máquina é o JDK 17
+$env:JAVA_HOME = "C:\caminho\do\jdk-21"   # só é preciso se o JAVA_HOME apontar para outra versão
 .\mvnw.cmd spring-boot:run
 ```
 
@@ -125,14 +158,14 @@ Quando aparecer `Started RumoCapApplication`, acesse:
 | Mapa | http://localhost:8080/mapa.html |
 | Administração | http://localhost:8080/admin.html — usuário e senha em `config/application.properties` |
 
-No IntelliJ: abra a pasta do projeto, defina o SDK do projeto como `corretto-21` e execute
-`RumoCapApplication`.
+No IntelliJ ou no VS Code: abra a pasta do projeto, escolha um JDK 21 para ele e execute
+`RumoCapApplication` (a pasta de trabalho deve ser a raiz do projeto).
 
 ### Senhas e configuração
 
 As senhas **não ficam no código** nem no Git. A aplicação lê as configurações abaixo de variáveis de
 ambiente ou do arquivo local `config/application.properties` (na pasta do projeto, ignorado pelo Git),
-gerado por `databaseservidor.ps1 criar`. Para criá-lo à mão, copie
+gerado por `database\servidor.ps1 criar`. Para criá-lo à mão, copie
 [`config/application.properties.example`](config/application.properties.example) e preencha os valores.
 Variáveis de ambiente têm prioridade sobre o arquivo. Sem a senha da administração a aplicação não inicia.
 
@@ -266,7 +299,6 @@ ou pago; para o uso do guia na cidade, a camada gratuita é suficiente.
 ## Testes
 
 ```powershell
-$env:JAVA_HOME = "C:\Users\ZuzzaXrc\.jdks\corretto-21.0.3"
 .\mvnw.cmd test
 ```
 
@@ -275,7 +307,7 @@ estabelecimentos (cadastro, validações, pesquisa sem acento, filtro, alteraç�
 localização, mapa, exclusão, login), envio/troca/remoção de imagens, publicação das páginas, `/api/status`
 o seletor de tema em todas as páginas, as telas de carregamento e apresentação e uma verificação de que
 nenhum arquivo do frontend contém emojis. Eles usam um banco H2 em memória e não
-alteram o PostgreSQL.
+alteram o PostgreSQL. No GitHub, eles rodam sozinhos a cada envio (aba *Actions*).
 
 ## Backup
 
