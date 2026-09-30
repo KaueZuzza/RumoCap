@@ -34,19 +34,21 @@ public class CategoriaService {
         this.estabelecimentoRepository = estabelecimentoRepository;
     }
 
+    /** Categorias com a quantidade de estabelecimentos no guia e de cadastros (qualquer situação). */
     public List<CategoriaResponse> listar() {
-        Map<Long, Long> totais = estabelecimentoRepository.contarPorCategoria().stream()
-                .collect(Collectors.toMap(TotalPorCategoria::getCategoriaId, TotalPorCategoria::getTotal));
+        Map<Long, Long> publicos = totais(estabelecimentoRepository.contarPublicosPorCategoria());
+        Map<Long, Long> cadastros = totais(estabelecimentoRepository.contarTodosPorCategoria());
 
         return categoriaRepository.findAll().stream()
                 .sorted(ordemDeExibicao())
-                .map(categoria -> CategoriaResponse.de(categoria, totais.getOrDefault(categoria.getId(), 0L)))
+                .map(categoria -> CategoriaResponse.de(categoria, publicos.getOrDefault(categoria.getId(), 0L),
+                        cadastros.getOrDefault(categoria.getId(), 0L)))
                 .toList();
     }
 
     public CategoriaResponse buscar(Long id) {
         Categoria categoria = buscarEntidade(id);
-        return CategoriaResponse.de(categoria, estabelecimentoRepository.countByCategoriaId(id));
+        return resposta(categoria);
     }
 
     @Transactional
@@ -54,7 +56,7 @@ public class CategoriaService {
         String nome = TextoUtils.limpar(dados.nome());
         verificarNomeDisponivel(nome, null);
         Categoria categoria = categoriaRepository.save(new Categoria(nome));
-        return CategoriaResponse.de(categoria, 0);
+        return CategoriaResponse.de(categoria, 0, 0);
     }
 
     @Transactional
@@ -63,7 +65,7 @@ public class CategoriaService {
         String nome = TextoUtils.limpar(dados.nome());
         verificarNomeDisponivel(nome, id);
         categoria.setNome(nome);
-        return CategoriaResponse.de(categoria, estabelecimentoRepository.countByCategoriaId(id));
+        return resposta(categoria);
     }
 
     @Transactional
@@ -75,6 +77,16 @@ public class CategoriaService {
                     + " estabelecimento(s). Mova-os para outra categoria antes de excluí-la.");
         }
         categoriaRepository.delete(categoria);
+    }
+
+    private CategoriaResponse resposta(Categoria categoria) {
+        long publicos = totais(estabelecimentoRepository.contarPublicosPorCategoria())
+                .getOrDefault(categoria.getId(), 0L);
+        return CategoriaResponse.de(categoria, publicos, estabelecimentoRepository.countByCategoriaId(categoria.getId()));
+    }
+
+    private static Map<Long, Long> totais(List<TotalPorCategoria> linhas) {
+        return linhas.stream().collect(Collectors.toMap(TotalPorCategoria::getCategoriaId, TotalPorCategoria::getTotal));
     }
 
     private Categoria buscarEntidade(Long id) {

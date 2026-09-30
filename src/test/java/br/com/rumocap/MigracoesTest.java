@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import br.com.rumocap.model.Categoria;
 import br.com.rumocap.repository.CategoriaRepository;
 import br.com.rumocap.repository.EstabelecimentoRepository;
+import br.com.rumocap.repository.ImportacaoRepository;
+import br.com.rumocap.repository.RelatoRepository;
 
 @DisplayName("Migrations do Flyway")
 class MigracoesTest extends ApiTestBase {
@@ -20,6 +22,12 @@ class MigracoesTest extends ApiTestBase {
 
     @Autowired
     private EstabelecimentoRepository estabelecimentoRepository;
+
+    @Autowired
+    private ImportacaoRepository importacaoRepository;
+
+    @Autowired
+    private RelatoRepository relatoRepository;
 
     @Test
     @DisplayName("criam somente as nove categorias iniciais")
@@ -35,5 +43,12 @@ class MigracoesTest extends ApiTestBase {
     @DisplayName("não inserem nenhum estabelecimento fictício")
     void naoInseremEstabelecimentos() {
         assertThat(estabelecimentoRepository.count()).isZero();
+    }
+
+    @Test
+    @DisplayName("criam as tabelas de importações e de avisos, vazias")
+    void criamTabelasDoLevantamento() {
+        assertThat(importacaoRepository.count()).isZero();
+        assertThat(relatoRepository.count()).isZero();
     }
 }

@@ -24,7 +24,9 @@ import org.springframework.security.web.SecurityFilterChain;
  * Regras de acesso:
  * <ul>
  *     <li>páginas do site, imagens e consultas (GET /api/**) são públicas;</li>
- *     <li>cadastrar, editar e excluir (POST, PUT e DELETE em /api/**) exigem o login do administrador.</li>
+ *     <li>o aviso de "informação incorreta" (POST /api/estabelecimentos/{id}/relatos) é público;</li>
+ *     <li>cadastrar, editar e excluir (POST, PUT e DELETE em /api/**) exigem o login do administrador;</li>
+ *     <li>tudo em /api/admin/** (revisão, importações, relatos) exige o login, inclusive as consultas.</li>
  * </ul>
  * O login usa HTTP Basic: a página admin.html envia o usuário e a senha em cada requisição.
  */
@@ -41,6 +43,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(acesso -> acesso
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET, "/api/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/estabelecimentos/*/relatos").permitAll()
                         .requestMatchers("/api/**").hasRole("ADMIN")
                         .anyRequest().permitAll())
                 // Respostas em JSON e sem o cabeçalho WWW-Authenticate,

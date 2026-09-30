@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import br.com.rumocap.model.Estabelecimento;
+import br.com.rumocap.model.SituacaoRevisao;
 
 public interface EstabelecimentoRepository extends JpaRepository<Estabelecimento, Long> {
 
@@ -20,15 +21,39 @@ public interface EstabelecimentoRepository extends JpaRepository<Estabelecimento
     @EntityGraph(attributePaths = "categoria")
     Optional<Estabelecimento> findById(Long id);
 
-    /** Somente os estabelecimentos que já têm localização cadastrada (usados no mapa). */
+    /** Estabelecimentos visíveis no guia: aprovados e ativos. */
     @EntityGraph(attributePaths = "categoria")
-    List<Estabelecimento> findByLatitudeIsNotNullAndLongitudeIsNotNull();
+    @Query("select e from Estabelecimento e where e.situacao = br.com.rumocap.model.SituacaoRevisao.APROVADO "
+            + "and e.ativo = true")
+    List<Estabelecimento> listarPublicos();
+
+    @EntityGraph(attributePaths = "categoria")
+    List<Estabelecimento> findBySituacao(SituacaoRevisao situacao);
+
+    @EntityGraph(attributePaths = "categoria")
+    List<Estabelecimento> findByIdIn(List<Long> ids);
 
     long countByCategoriaId(Long categoriaId);
 
-    @Query("select e.categoria.id as categoriaId, count(e) as total "
-            + "from Estabelecimento e group by e.categoria.id")
-    List<TotalPorCategoria> contarPorCategoria();
+    long countBySituacao(SituacaoRevisao situacao);
+
+    long countBySituacaoAndAtivo(SituacaoRevisao situacao, boolean ativo);
+
+    long countBySituacaoAndDuplicadoDeIdIsNotNull(SituacaoRevisao situacao);
+
+    @Query("select count(e) from Estabelecimento e where e.situacao = br.com.rumocap.model.SituacaoRevisao.APROVADO "
+            + "and e.ativo = true and (e.latitude is null or e.longitude is null)")
+    long contarPublicosSemLocalizacao();
+
+    /** Quantidade de estabelecimentos visíveis no guia, por categoria. */
+    @Query("select e.categoria.id as categoriaId, count(e) as total from Estabelecimento e "
+            + "where e.situacao = br.com.rumocap.model.SituacaoRevisao.APROVADO and e.ativo = true "
+            + "group by e.categoria.id")
+    List<TotalPorCategoria> contarPublicosPorCategoria();
+
+    /** Quantidade de cadastros (em qualquer situação), por categoria. */
+    @Query("select e.categoria.id as categoriaId, count(e) as total from Estabelecimento e group by e.categoria.id")
+    List<TotalPorCategoria> contarTodosPorCategoria();
 
     interface TotalPorCategoria {
 

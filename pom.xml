@@ -62,6 +62,13 @@
             <artifactId>postgresql</artifactId>
             <scope>runtime</scope>
         </dependency>
+        <!-- Desenvolvimento: reinicio automatico e LiveReload (nao vai para o jar) -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-devtools</artifactId>
+            <optional>true</optional>
+            <scope>runtime</scope>
+        </dependency>
 
         <!-- Testes automatizados -->
         <dependency>

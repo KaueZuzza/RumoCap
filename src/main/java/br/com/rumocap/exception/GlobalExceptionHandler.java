@@ -40,6 +40,11 @@ public class GlobalExceptionHandler {
         return resposta(HttpStatus.CONFLICT, erro.getMessage());
     }
 
+    @ExceptionHandler(LimiteExcedidoException.class)
+    public ResponseEntity<ErroResponse> limiteExcedido(LimiteExcedidoException erro) {
+        return resposta(HttpStatus.TOO_MANY_REQUESTS, erro.getMessage());
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErroResponse> dadosInvalidos(MethodArgumentNotValidException erro) {
         Map<String, String> campos = new LinkedHashMap<>();

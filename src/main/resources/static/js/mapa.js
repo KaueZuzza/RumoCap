@@ -1,19 +1,21 @@
 import { api } from './api.js';
 import {
-  CENTRO_CAPITAO_POCO, adicionarBotoesMapa, adicionarCamadaBase, escapar, icone, iconeMarcador, iniciarMenu,
-  normalizar, parametroDaUrl, plural, seloCategoria, visualCategoria,
+  CENTRO_CAPITAO_POCO, adicionarBotoesMapa, adicionarCamadaBase, criarGrupoDeMarcadores, escapar, icone,
+  iconeMarcador, iniciarMenu, normalizar, parametroDaUrl, plural, seloCategoria, visualCategoria,
 } from './comum.js';
 import { carregarMunicipio } from './municipio.js';
 
 /** Retângulo do município (oeste, norte, leste, sul), usado se o limite do IBGE não carregar. */
 const LIMITES_MUNICIPIO = [-47.5176, -1.5379, -46.9272, -2.5936];
 const NOMINATIM = 'https://nominatim.openstreetmap.org/search';
+const MAXIMO_NA_LISTA = 40;
 
 const contagem = document.getElementById('contagem-mapa');
 const filtro = document.getElementById('filtro-mapa');
 const aviso = document.getElementById('aviso-mapa');
 const formularioBusca = document.getElementById('busca-mapa');
 const campoBusca = document.getElementById('texto-busca-mapa');
+const botaoLimpar = document.getElementById('limpar-busca-mapa');
 const resultados = document.getElementById('resultados-mapa');
 const municipio = document.getElementById('municipio');
 const municipioCorpo = document.getElementById('municipio-corpo');
@@ -28,13 +30,20 @@ adicionarBotoesMapa(mapa, [
   { icone: 'locate-fixed', titulo: 'Mostrar minha localização', acao: mostrarMinhaLocalizacao },
 ], celular ? 'bottomright' : 'topright');
 
-const camadaMarcadores = L.featureGroup().addTo(mapa);
+// Os estabelecimentos próximos são agrupados; ao aproximar o mapa, os grupos se abrem.
+const camadaMarcadores = criarGrupoDeMarcadores().addTo(mapa);
 const camadaApoio = L.layerGroup().addTo(mapa); // resultado de endereço e "você está aqui"
 let limiteMunicipio = null;
 
-let marcadores = [];
+let marcadores = [];           // todos os estabelecimentos do guia com localização (vêm da API)
+const pinos = new Map();       // id -> marcador do Leaflet
 let categorias = [];
 let categoriaSelecionada = '';
+let termoDaBusca = '';
+let idsDaBusca = null;         // null = sem busca; Set = ids encontrados pela API
+let semLocalizacaoNaBusca = 0; // encontrados pela busca, mas sem posição no mapa
+let ultimaBusca = 0;
+let ultimosEnderecos = [];
 
 iniciarMenu();
 iniciarBusca();
@@ -47,7 +56,7 @@ async function carregar() {
   contagem.textContent = 'Carregando...';
   let listaCategorias;
   try {
-    // Os marcadores vêm da API: somente estabelecimentos com latitude e longitude cadastradas.
+    // Os marcadores vêm da API: somente estabelecimentos do guia com latitude e longitude.
     [marcadores, listaCategorias] = await Promise.all([
       api.listarMarcadores(),
       api.listarCategorias().catch(() => null),
@@ -58,18 +67,32 @@ async function carregar() {
     return;
   }
 
+  for (const marcador of marcadores) {
+    const pino = L.marker([marcador.latitude, marcador.longitude], {
+      icon: iconeMarcador(marcador.categoria),
+      title: marcador.nome,
+      alt: marcador.nome,
+    });
+    pino.bindPopup(conteudoPopup(marcador));
+    pinos.set(marcador.id, pino);
+  }
+
   categorias = listaCategorias ?? categoriasDosMarcadores();
-  renderizarFiltro();
   filtro.addEventListener('click', (evento) => {
     const chip = evento.target.closest('[data-categoria]');
     if (!chip) return;
     categoriaSelecionada = chip.dataset.categoria;
-    renderizarFiltro();
-    desenhar(true);
+    atualizar(true);
   });
 
   const destacado = marcadores.find((marcador) => String(marcador.id) === parametroDaUrl('id'));
-  desenhar(!destacado);
+  const buscaInicial = parametroDaUrl('busca');
+  if (buscaInicial) {
+    campoBusca.value = buscaInicial;
+    await buscarEstabelecimentos(buscaInicial);
+  } else {
+    atualizar(!destacado);
+  }
   if (destacado) {
     abrirMarcador(destacado.id);
   }
@@ -80,10 +103,43 @@ function categoriasDosMarcadores() {
   return [...unicas.values()];
 }
 
-/** Filtro com todas as categorias e a quantidade de locais de cada uma no mapa. */
+/** Estabelecimentos que passam pela busca (sem olhar a categoria). */
+function daBusca() {
+  return idsDaBusca ? marcadores.filter((marcador) => idsDaBusca.has(marcador.id)) : marcadores;
+}
+
+function visiveis() {
+  return daBusca().filter((marcador) =>
+    !categoriaSelecionada || String(marcador.categoria.id) === categoriaSelecionada);
+}
+
+/** Redesenha filtros, marcadores, contagem e lista de resultados. */
+function atualizar(ajustarVisao) {
+  renderizarFiltro();
+  const lista = visiveis();
+
+  camadaMarcadores.clearLayers();
+  const novos = lista.map((marcador) => pinos.get(marcador.id));
+  if (typeof camadaMarcadores.addLayers === 'function') {
+    camadaMarcadores.addLayers(novos); // agrupamento: adiciona todos de uma vez
+  } else {
+    novos.forEach((pino) => pino.addTo(camadaMarcadores));
+  }
+
+  contagem.textContent = plural(lista.length, 'local no mapa', 'locais no mapa');
+  atualizarAviso(lista.length);
+  mostrarResultados(lista, null);
+  if (ajustarVisao && lista.length > 0) {
+    const limites = L.latLngBounds(lista.map((marcador) => [marcador.latitude, marcador.longitude]));
+    mapa.fitBounds(limites, { padding: [70, 70], maxZoom: 17 });
+  }
+}
+
+/** "Todos" e as categorias, com a quantidade de locais de cada uma (considerando a busca). */
 function renderizarFiltro() {
+  const base = daBusca();
   const totais = new Map();
-  for (const marcador of marcadores) {
+  for (const marcador of base) {
     totais.set(marcador.categoria.id, (totais.get(marcador.categoria.id) ?? 0) + 1);
   }
 
@@ -98,36 +154,20 @@ function renderizarFiltro() {
 
   filtro.innerHTML = `
     <button type="button" class="chip" data-categoria="" aria-pressed="${categoriaSelecionada === ''}">
-      ${icone('layout-grid')} Todos <span class="chip__total">${marcadores.length}</span>
+      ${icone('layout-grid')} Todos <span class="chip__total">${base.length}</span>
     </button>${chips.join('')}`;
-}
-
-function desenhar(ajustarVisao) {
-  camadaMarcadores.clearLayers();
-  const visiveis = marcadores.filter((marcador) =>
-    !categoriaSelecionada || String(marcador.categoria.id) === categoriaSelecionada);
-
-  for (const marcador of visiveis) {
-    const pino = L.marker([marcador.latitude, marcador.longitude], {
-      icon: iconeMarcador(marcador.categoria),
-      title: marcador.nome,
-      alt: marcador.nome,
-    });
-    pino.idEstabelecimento = marcador.id;
-    pino.bindPopup(conteudoPopup(marcador)).addTo(camadaMarcadores);
-  }
-
-  contagem.textContent = plural(visiveis.length, 'local no mapa', 'locais no mapa');
-  atualizarAviso(visiveis.length);
-  if (ajustarVisao && visiveis.length > 0) {
-    mapa.fitBounds(camadaMarcadores.getBounds(), { padding: [70, 70], maxZoom: 17 });
-  }
 }
 
 function atualizarAviso(quantidadeVisivel) {
   if (marcadores.length === 0) {
     mostrarAviso('map-pin', 'Nenhum estabelecimento no mapa ainda.',
-      'Os locais aparecem aqui quando a localização é cadastrada na área administrativa.');
+      'Os locais aparecem aqui depois de conferidos pela administração do guia.');
+  } else if (quantidadeVisivel === 0 && idsDaBusca) {
+    const extra = semLocalizacaoNaBusca
+      ? ` ${plural(semLocalizacaoNaBusca, 'resultado ainda não tem', 'resultados ainda não têm')} localização: veja na lista de estabelecimentos.`
+      : '';
+    mostrarAviso('search', `Nenhum local encontrado no mapa para "${termoDaBusca}".`,
+      `Tente outro nome ou tipo de serviço, ou toque em "Todos".${extra}`);
   } else if (quantidadeVisivel === 0) {
     const categoria = categorias.find((item) => String(item.id) === categoriaSelecionada);
     mostrarAviso('map-pin-off', `Nenhum local de ${categoria?.nome ?? 'esta categoria'} no mapa.`,
@@ -138,12 +178,22 @@ function atualizarAviso(quantidadeVisivel) {
 }
 
 function abrirMarcador(id) {
-  camadaMarcadores.eachLayer((camada) => {
-    if (camada.idEstabelecimento === id) {
-      mapa.setView(camada.getLatLng(), 18);
-      camada.openPopup();
-    }
-  });
+  const pino = pinos.get(id);
+  if (!pino) return;
+  if (!camadaMarcadores.hasLayer(pino)) {
+    categoriaSelecionada = '';
+    limparBusca(false);
+    atualizar(false);
+  }
+  const abrir = () => {
+    mapa.setView(pino.getLatLng(), Math.max(mapa.getZoom(), 18));
+    pino.openPopup();
+  };
+  if (typeof camadaMarcadores.zoomToShowLayer === 'function') {
+    camadaMarcadores.zoomToShowLayer(pino, () => pino.openPopup());
+  } else {
+    abrir();
+  }
 }
 
 function conteudoPopup(marcador) {
@@ -169,24 +219,37 @@ function mostrarAviso(nomeIcone, titulo, texto) {
 /* ================================ Pesquisa ================================ */
 
 /**
- * Digitando: filtra os estabelecimentos cadastrados.
+ * Digitando: a API procura no nome, na categoria e no endereço (com sinônimos,
+ * como farmácia/drogaria) e o mapa mostra só os locais encontrados.
  * Ao buscar (Enter/botão): também procura ruas e locais no OpenStreetMap
  * (Nominatim), limitado ao município. O Nominatim só é chamado ao enviar,
  * conforme a política de uso gratuito do serviço.
  */
 function iniciarBusca() {
-  campoBusca.addEventListener('input', () => mostrarResultados(campoBusca.value, null));
+  let espera;
+  campoBusca.addEventListener('input', () => {
+    botaoLimpar.hidden = !campoBusca.value;
+    clearTimeout(espera);
+    espera = setTimeout(() => buscarEstabelecimentos(campoBusca.value), 300);
+  });
+  botaoLimpar.addEventListener('click', () => {
+    limparBusca(true);
+    atualizar(true);
+    campoBusca.focus();
+  });
   formularioBusca.addEventListener('submit', async (evento) => {
     evento.preventDefault();
+    clearTimeout(espera);
     const termo = campoBusca.value.trim();
+    await buscarEstabelecimentos(termo);
     if (termo.length < 2) {
       return;
     }
-    mostrarResultados(termo, 'carregando');
+    mostrarResultados(visiveis(), 'carregando');
     try {
-      mostrarResultados(termo, await buscarEnderecos(termo));
+      mostrarResultados(visiveis(), await buscarEnderecos(termo));
     } catch {
-      mostrarResultados(termo, 'erro');
+      mostrarResultados(visiveis(), 'erro');
     }
   });
   resultados.addEventListener('click', (evento) => {
@@ -194,7 +257,7 @@ function iniciarBusca() {
     if (!botao) return;
     const [tipo, indice] = botao.dataset.resultado.split(':');
     if (tipo === 'estabelecimento') {
-      irParaEstabelecimento(Number(indice));
+      abrirMarcador(Number(indice));
     } else {
       irParaEndereco(ultimosEnderecos[Number(indice)]);
     }
@@ -204,35 +267,67 @@ function iniciarBusca() {
   });
 }
 
-let ultimosEnderecos = [];
-
-function encontrarEstabelecimentos(termo) {
-  const busca = normalizar(termo);
-  if (!busca) return [];
-  return marcadores
-    .filter((marcador) => normalizar(`${marcador.nome} ${marcador.endereco ?? ''} ${marcador.categoria.nome}`).includes(busca))
-    .slice(0, 6);
+async function buscarEstabelecimentos(texto) {
+  const termo = texto.trim();
+  const consulta = ++ultimaBusca;
+  botaoLimpar.hidden = !termo;
+  if (termo.length < 2) {
+    if (idsDaBusca) {
+      limparBusca(false);
+      atualizar(true);
+    }
+    return;
+  }
+  try {
+    const encontrados = await api.listarEstabelecimentos({ busca: termo });
+    if (consulta !== ultimaBusca) return; // uma busca mais recente já foi feita
+    termoDaBusca = termo;
+    idsDaBusca = new Set(encontrados.map((item) => item.id));
+    semLocalizacaoNaBusca = encontrados.filter((item) => item.latitude == null).length;
+    ultimosEnderecos = [];
+    atualizar(true);
+  } catch (erro) {
+    mostrarAviso('circle-alert', 'Não foi possível pesquisar agora.', erro.message);
+  }
 }
 
-function mostrarResultados(termo, enderecos) {
-  if (!termo.trim()) {
+/** Volta a mostrar todos os estabelecimentos. */
+function limparBusca(limparCampo) {
+  idsDaBusca = null;
+  termoDaBusca = '';
+  semLocalizacaoNaBusca = 0;
+  ultimosEnderecos = [];
+  camadaApoio.clearLayers();
+  if (limparCampo) {
+    campoBusca.value = '';
+  }
+  botaoLimpar.hidden = !campoBusca.value;
+}
+
+function mostrarResultados(lista, enderecos) {
+  if (!idsDaBusca && enderecos === null) {
     resultados.hidden = true;
     resultados.innerHTML = '';
     return;
   }
-  const locais = encontrarEstabelecimentos(termo);
-  const blocoLocais = locais.length
-    ? `<ul class="resultados__grupo">${locais.map((marcador) => `
+  const primeiros = lista.slice(0, MAXIMO_NA_LISTA);
+  const blocoLocais = primeiros.length
+    ? `<ul class="resultados__grupo">${primeiros.map((marcador) => `
         <li><button type="button" class="resultado" data-resultado="estabelecimento:${marcador.id}">
           ${icone(visualCategoria(marcador.categoria).icone)}
           <span class="resultado__texto">
             <span class="resultado__nome">${escapar(marcador.nome)}</span>
             <span class="resultado__sub">${escapar(marcador.categoria.nome)}${marcador.endereco ? ` · ${escapar(marcador.endereco)}` : ''}</span>
           </span>
-        </button></li>`).join('')}</ul>`
-    : '<p class="resultados__nota">Nenhum estabelecimento cadastrado com esse nome.</p>';
+        </button></li>`).join('')}</ul>
+        ${lista.length > MAXIMO_NA_LISTA ? `<p class="resultados__mais">E mais ${lista.length - MAXIMO_NA_LISTA} no mapa.</p>` : ''}`
+    : '<p class="resultados__nota">Nenhum estabelecimento do guia no mapa para esta busca.</p>';
 
-  let blocoEnderecos = '<p class="resultados__nota">Pressione Buscar para procurar ruas e locais da cidade.</p>';
+  const listaCompleta = termoDaBusca
+    ? `<a class="resultados__nota" href="estabelecimentos.html?busca=${encodeURIComponent(termoDaBusca)}">Ver os resultados em lista</a>`
+    : '';
+
+  let blocoEnderecos = '<p class="resultados__nota">Pressione Buscar para procurar também ruas e locais da cidade.</p>';
   if (enderecos === 'carregando') {
     blocoEnderecos = `<p class="resultados__nota">${icone('loader-circle', 'girando')} Procurando no mapa...</p>`;
   } else if (enderecos === 'erro') {
@@ -252,7 +347,7 @@ function mostrarResultados(termo, enderecos) {
   }
 
   resultados.innerHTML = `
-    <div><p class="mapa-painel__titulo-secao">Estabelecimentos</p>${blocoLocais}</div>
+    <div><p class="mapa-painel__titulo-secao">Estabelecimentos encontrados</p>${blocoLocais}${listaCompleta}</div>
     <div><p class="mapa-painel__titulo-secao">Ruas e locais (OpenStreetMap)</p>${blocoEnderecos}</div>`;
   resultados.hidden = false;
 }
@@ -296,18 +391,6 @@ const IGNORAR_NO_ENDERECO = /^(Pará|Região Norte|Brasil|\d{5}-?\d{3})$/;
 function limitesDaCamada(camada) {
   const limites = camada.getBounds();
   return [limites.getWest(), limites.getNorth(), limites.getEast(), limites.getSouth()];
-}
-
-function irParaEstabelecimento(id) {
-  if (categoriaSelecionada) {
-    const marcador = marcadores.find((item) => item.id === id);
-    if (marcador && String(marcador.categoria.id) !== categoriaSelecionada) {
-      categoriaSelecionada = '';
-      renderizarFiltro();
-      desenhar(false);
-    }
-  }
-  abrirMarcador(id);
 }
 
 function irParaEndereco(local) {

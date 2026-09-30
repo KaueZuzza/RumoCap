@@ -86,11 +86,18 @@ export function seloCategoria(categoria, comLink = false) {
 
 /** Card com as informações principais de um estabelecimento. */
 export function cardEstabelecimento(estabelecimento) {
-  const endereco = estabelecimento.endereco
-    ? escapar(estabelecimento.endereco)
-    : 'Endereço não informado';
   const descricao = estabelecimento.descricao
     ? `<p class="card__descricao">${escapar(estabelecimento.descricao)}</p>`
+    : '';
+  const dados = [
+    estabelecimento.endereco
+      ? dadoDoCard('map-pin', escapar(estabelecimento.endereco))
+      : dadoDoCard('map-pin', 'Endereço não informado', true),
+    estabelecimento.telefone ? dadoDoCard('phone', escapar(estabelecimento.telefone)) : '',
+    estabelecimento.whatsapp && !estabelecimento.telefone ? dadoDoCard('whatsapp', escapar(estabelecimento.whatsapp)) : '',
+  ].join('');
+  const semLocalizacao = estabelecimento.latitude == null
+    ? `<span class="etiqueta etiqueta--neutra">${icone('map-pin-off')} Fora do mapa</span>`
     : '';
 
   return `
@@ -104,12 +111,55 @@ export function cardEstabelecimento(estabelecimento) {
           </div>
         </div>
         ${descricao}
+        <div class="card__dados">${dados}</div>
         <div class="card__rodape">
-          <span class="card__endereco">${icone('map-pin')}<span>${endereco}</span></span>
+          ${semLocalizacao}
           <span class="card__mais">Detalhes ${icone('chevron-right')}</span>
         </div>
       </a>
     </article>`;
+}
+
+function dadoDoCard(nomeIcone, conteudo, pendente = false) {
+  return `<span class="card__dado${pendente ? ' card__dado--pendente' : ''}">${icone(nomeIcone)}<span>${conteudo}</span></span>`;
+}
+
+/* ---------- Datas, telefones e links ---------- */
+
+const FORMATO_DATA = new Intl.DateTimeFormat('pt-BR', {
+  day: '2-digit', month: '2-digit', year: 'numeric', timeZone: 'America/Belem',
+});
+
+/** "2026-09-30T19:45:00Z" -> "30/09/2026". */
+export function formatarData(iso) {
+  if (!iso) return '';
+  const data = new Date(iso);
+  return Number.isNaN(data.getTime()) ? '' : FORMATO_DATA.format(data);
+}
+
+/** Link "tel:" de um telefone já formatado pela API, como "(91) 3468-1888". */
+export function linkTelefone(numero) {
+  const digitos = String(numero ?? '').replace(/\D/g, '');
+  if (!digitos) return null;
+  return digitos.startsWith('0') ? `tel:${digitos}` : `tel:+55${digitos}`;
+}
+
+/** Conversa no WhatsApp a partir do número cadastrado. */
+export function linkWhatsapp(numero) {
+  const digitos = String(numero ?? '').replace(/\D/g, '');
+  return digitos.length >= 10 ? `https://wa.me/55${digitos.slice(-11)}` : null;
+}
+
+/** Texto curto de um site ou rede social: "https://www.instagram.com/loja/" -> "instagram.com/loja". */
+export function textoDoSite(url) {
+  return String(url ?? '').replace(/^https?:\/\/(www\.)?/i, '').replace(/\/$/, '');
+}
+
+/** Ícone adequado ao endereço do site (Instagram, Facebook ou site comum). */
+export function iconeDoSite(url) {
+  if (/instagram\.com/i.test(url)) return 'instagram';
+  if (/facebook\.com|fb\.com/i.test(url)) return 'facebook';
+  return 'globe';
 }
 
 export function esqueletos(quantidade, tipo) {
@@ -377,6 +427,34 @@ export function adicionarBotoesMapa(mapa, botoes, posicao = 'topright') {
     },
   });
   new Controle({ position: posicao }).addTo(mapa);
+}
+
+/**
+ * Camada que junta marcadores próximos em um círculo com a quantidade
+ * (Leaflet.markercluster). Sem o plugin, os marcadores aparecem soltos.
+ */
+export function criarGrupoDeMarcadores(opcoes = {}) {
+  if (typeof L.markerClusterGroup !== 'function') {
+    return L.featureGroup();
+  }
+  return L.markerClusterGroup({
+    showCoverageOnHover: false,
+    maxClusterRadius: 50,
+    spiderfyOnMaxZoom: true,
+    disableClusteringAtZoom: 18,
+    chunkedLoading: true,
+    ...opcoes,
+    iconCreateFunction(grupo) {
+      const total = grupo.getChildCount();
+      const tamanho = total < 10 ? 'pequeno' : total < 50 ? 'medio' : 'grande';
+      const lado = total < 10 ? 36 : total < 50 ? 42 : 50;
+      return L.divIcon({
+        className: `grupo-marcadores grupo-marcadores--${tamanho}`,
+        html: `<span class="grupo-marcadores__circulo" aria-label="${total} estabelecimentos">${total}</span>`,
+        iconSize: [lado, lado],
+      });
+    },
+  });
 }
 
 /** Marcador no formato de pino, com a cor e o ícone da categoria. */

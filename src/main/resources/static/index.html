@@ -5,14 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>RumoCap · Guia Comercial de Capitão Poço</title>
   <meta name="description" content="Guia digital de comércios e serviços de Capitão Poço (PA): endereços, contatos, horários e localização.">
-  <meta name="theme-color" content="#ffffff">
+  <meta name="theme-color" content="#173f2f">
   <script src="js/tema.js"></script>
   <link rel="icon" href="img/logo.svg" type="image/svg+xml">
   <link rel="preload" href="fontes/source-serif-4-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="fontes/source-sans-3-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="vendor/leaflet/leaflet.css">
+  <link rel="stylesheet" href="vendor/leaflet.markercluster/MarkerCluster.css">
   <link rel="stylesheet" href="css/estilo.css">
   <script src="vendor/leaflet/leaflet.js"></script>
+  <script src="vendor/leaflet.markercluster/leaflet.markercluster.js"></script>
   <script type="module" src="js/inicio.js"></script>
 </head>
 <body>
@@ -32,14 +34,14 @@
       <div class="abertura__nome">Rumo<span>Cap</span></div>
       <p class="abertura__frase">Um caminho para descobrir Capitão Poço</p>
       <div class="abertura__barra" aria-hidden="true"></div>
-      <span class="visualmente-oculto">Carregando o guia...</span>
+      <p class="abertura__estado" id="abertura-estado">Carregando o guia...</p>
     </div>
   </div>
 
   <!-- Apresentação do projeto (pode ser ocultada com "Não mostrar novamente") -->
   <dialog class="apresentacao" id="apresentacao" aria-labelledby="apresentacao-titulo">
     <div class="apresentacao__capa">
-      <img src="img/logo.svg" alt="" width="46" height="46">
+      <img src="img/logo.svg" alt="" width="50" height="50">
       <div>
         <h2 id="apresentacao-titulo">Rumo<span>Cap</span></h2>
         <p class="apresentacao__lema">Um caminho para descobrir Capitão Poço.</p>
@@ -47,12 +49,13 @@
     </div>
     <div class="apresentacao__corpo">
       <p class="apresentacao__texto">
-        Um guia digital para encontrar estabelecimentos e serviços de Capitão Poço – PA.
+        O RumoCap reúne informações sobre os estabelecimentos e serviços de Capitão Poço – PA:
+        endereço, contato, horário e localização no mapa, tudo em um só lugar.
       </p>
       <ul class="apresentacao__lista">
         <li>
           <span class="apresentacao__icone"><svg class="icone" aria-hidden="true"><use href="img/icones.svg#search"></use></svg></span>
-          <span><strong>Pesquise</strong>por nome, tipo de serviço ou categoria.</span>
+          <span><strong>Pesquise</strong>pelo nome, pela categoria ou pelo endereço.</span>
         </li>
         <li>
           <span class="apresentacao__icone"><svg class="icone" aria-hidden="true"><use href="img/icones.svg#map"></use></svg></span>
@@ -60,12 +63,15 @@
         </li>
         <li>
           <span class="apresentacao__icone"><svg class="icone" aria-hidden="true"><use href="img/icones.svg#phone"></use></svg></span>
-          <span><strong>Entre em contato</strong>com endereço, telefone e horário de cada local.</span>
+          <span><strong>Entre em contato</strong>por telefone, WhatsApp ou pelo endereço de cada local.</span>
         </li>
       </ul>
+      <p class="apresentacao__nota">
+        As informações vêm de fontes públicas e são conferidas pela administração antes de aparecer no guia.
+      </p>
       <div class="apresentacao__rodape">
         <button type="button" class="botao botao--primario" id="apresentacao-continuar">
-          Começar
+          Continuar
           <svg class="icone" aria-hidden="true"><use href="img/icones.svg#arrow-right"></use></svg>
         </button>
         <label class="apresentacao__ocultar">
@@ -119,9 +125,9 @@
             <label class="busca-capa__campo">
               <svg class="icone" aria-hidden="true"><use href="img/icones.svg#search"></use></svg>
               <span class="visualmente-oculto">Pesquisar estabelecimento</span>
-              <input type="search" name="busca" placeholder="Nome ou tipo de serviço" autocomplete="off">
+              <input type="search" name="busca" placeholder="Nome, tipo de serviço ou endereço" autocomplete="off">
             </label>
-            <button type="submit" class="botao botao--primario">Buscar</button>
+            <button type="submit" class="botao botao--destaque">Buscar</button>
           </form>
 
           <p class="capa__atalhos">
@@ -134,12 +140,14 @@
               Abrir o mapa
             </a>
           </p>
+
+          <p class="capa__numeros" id="capa-numeros" aria-live="polite" hidden></p>
         </div>
 
         <figure class="capa__mapa" id="capa-mapa">
           <div class="capa__mapa-area" id="mapa-capa" role="region" aria-label="Mapa do centro de Capitão Poço"></div>
           <figcaption>
-            <span>Centro de Capitão Poço</span>
+            <span id="legenda-mapa-capa">Centro de Capitão Poço</span>
             <a href="mapa.html">
               Mapa completo
               <svg class="icone" aria-hidden="true"><use href="img/icones.svg#arrow-right"></use></svg>
@@ -153,6 +161,7 @@
       <div class="container">
         <div class="secao__cabecalho">
           <div>
+            <span class="secao__rotulo">Explore</span>
             <h2 class="secao__titulo" id="titulo-categorias">Categorias</h2>
             <p class="secao__subtitulo">Escolha uma categoria para ver os estabelecimentos.</p>
           </div>
@@ -165,8 +174,9 @@
       <div class="container">
         <div class="secao__cabecalho">
           <div>
+            <span class="secao__rotulo">No guia</span>
             <h2 class="secao__titulo" id="titulo-destaques">Conheça alguns estabelecimentos</h2>
-            <p class="secao__subtitulo">Uma seleção de locais cadastrados no guia.</p>
+            <p class="secao__subtitulo">Uma seleção de locais conferidos pela administração do guia.</p>
           </div>
           <a class="botao botao--secundario" href="estabelecimentos.html">
             Ver lista completa
@@ -196,14 +206,14 @@
         </ul>
       </nav>
       <div>
-        <p class="rodape__titulo">Aviso</p>
-        <p class="rodape__nota">Portal informativo. Confirme horários e condições diretamente com cada estabelecimento.</p>
+        <p class="rodape__titulo">Sobre os dados</p>
+        <p class="rodape__nota">As informações vêm de fontes públicas e são conferidas pela administração. Podem mudar: confirme horários e condições com cada estabelecimento.</p>
         <a href="admin.html">
           <svg class="icone" aria-hidden="true"><use href="img/icones.svg#lock"></use></svg>
           Área administrativa
         </a>
       </div>
-      <p class="rodape__base">Mapas: OpenStreetMap e Esri. Dados do município: IBGE.</p>
+      <p class="rodape__base">Fontes: OpenStreetMap (ODbL), CNES/Ministério da Saúde e IBGE (Censo 2022). Mapas: OpenStreetMap e Esri. Dados do município: IBGE.</p>
     </div>
   </footer>
 </body>

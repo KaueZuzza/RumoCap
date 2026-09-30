@@ -8,10 +8,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.com.rumocap.dto.StatusResponse;
+import br.com.rumocap.model.SituacaoRevisao;
 import br.com.rumocap.repository.CategoriaRepository;
 import br.com.rumocap.repository.EstabelecimentoRepository;
 
-/** GET /api/status — confirma que a API responde e que o banco está acessível. */
+/** GET /api/status — confirma que a API responde e que o banco está acessível (conta só os estabelecimentos do guia). */
 @RestController
 @RequestMapping("/api/status")
 public class StatusController {
@@ -29,7 +30,8 @@ public class StatusController {
     public ResponseEntity<StatusResponse> status() {
         try {
             return ResponseEntity.ok(new StatusResponse("online", "conectado",
-                    categoriaRepository.count(), estabelecimentoRepository.count()));
+                    categoriaRepository.count(),
+                    estabelecimentoRepository.countBySituacaoAndAtivo(SituacaoRevisao.APROVADO, true)));
         } catch (DataAccessException erro) {
             return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
                     .body(new StatusResponse("online", "indisponível", null, null));

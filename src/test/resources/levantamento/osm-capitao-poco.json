@@ -1,0 +1,688 @@
+{
+  "version": 0.6,
+  "generator": "Overpass API 0.7.62.11 87bfad18",
+  "osm3s": {
+    "timestamp_osm_base": "2026-09-30T18:47:23Z",
+    "timestamp_areas_base": "2026-09-30T00:32:36Z",
+    "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL."
+  },
+  "elements": [
+
+{
+  "type": "node",
+  "id": 3669454678,
+  "lat": -1.7448140,
+  "lon": -47.0643552,
+  "tags": {
+    "addr:city": "Capitão Poço",
+    "amenity": "townhall",
+    "name": "Prefeitura Municipal de Capitão Poço"
+  }
+},
+{
+  "type": "node",
+  "id": 3669460370,
+  "lat": -1.7454885,
+  "lon": -47.0636702,
+  "tags": {
+    "amenity": "library",
+    "name": "City's Library"
+  }
+},
+{
+  "type": "node",
+  "id": 5994463574,
+  "lat": -1.7472777,
+  "lon": -47.0594680,
+  "tags": {
+    "amenity": "bus_station",
+    "bus": "yes",
+    "public_transport": "station"
+  }
+},
+{
+  "type": "node",
+  "id": 9802697215,
+  "lat": -1.7350096,
+  "lon": -47.0560592,
+  "tags": {
+    "addr:city": "Capitão Poço",
+    "addr:postcode": "68650000",
+    "addr:street": "Travessa Pau Amarelo",
+    "addr:suburb": "Vila Nova",
+    "amenity": "university",
+    "internet_access": "yes",
+    "internet_access:fee": "no",
+    "name": "Universidade Federal Rural da Amazônia - Campus Capitão Poço",
+    "operator": "Ministério da Educação",
+    "operator:type": "public",
+    "website": "https://capitaopoco.ufra.edu.br/",
+    "wheelchair": "yes",
+    "wikidata": "Q20061641",
+    "wikipedia": "pt:Universidade Federal Rural da Amazônia"
+  }
+},
+{
+  "type": "node",
+  "id": 10659336051,
+  "lat": -1.7478191,
+  "lon": -47.0638154,
+  "tags": {
+    "addr:city": "CAPITÃO POÇO",
+    "addr:housenumber": "338",
+    "addr:postcode": "68650000",
+    "addr:street": "Travessa José Barros da Silva",
+    "addr:suburb": "TATAJUBA",
+    "amenity": "pharmacy",
+    "dispensing": "yes",
+    "drive_through": "no",
+    "email": "drogariadkfarma@gmail.com",
+    "healthcare": "pharmacy",
+    "name": "DK FARMA",
+    "opening_hours": "Mo-Su 07:00-22:00",
+    "operator": "Dra PAMELA KATHIUCIA ALMEIDA SANTIAGO",
+    "phone": "+55 91 98578 5859"
+  }
+},
+{
+  "type": "node",
+  "id": 12174678472,
+  "lat": -1.7434361,
+  "lon": -47.0598755,
+  "tags": {
+    "addr:city": "Capitão Poço",
+    "addr:housenumber": "1117",
+    "addr:postcode": "68650-000",
+    "addr:street": "Avenida Vinte e Nove de Dezembro",
+    "addr:suburb": "Centro",
+    "amenity": "internet_cafe",
+    "internet_access": "yes",
+    "internet_access:fee": "customers",
+    "name": "Click Enter - Provedor de Internet",
+    "phone": "08000921920",
+    "website": "https://www.clickenter.com.br"
+  }
+},
+{
+  "type": "node",
+  "id": 12753314218,
+  "lat": -1.7355763,
+  "lon": -47.0576924,
+  "tags": {
+    "addr:city": "Capitão Poço",
+    "addr:housenumber": "202",
+    "addr:postcode": "68650000",
+    "addr:street": "Travessa Pau Amarelo",
+    "addr:suburb": "Vila Nova",
+    "amenity": "school",
+    "name": "Escola Chapeuzinho Vermelho"
+  }
+},
+{
+  "type": "node",
+  "id": 12753314219,
+  "lat": -1.7355800,
+  "lon": -47.0605275,
+  "tags": {
+    "addr:city": "Capitão Poço",
+    "addr:postcode": "68650000",
+    "addr:street": "rodovia PA-124",
+    "addr:suburb": "Vila Nova",
+    "hairdresser": "barber",
+    "name": "Oficina do cabelo barbershop",
+    "opening_hours": "Mo-Sa 08:15-11:15; Mo-Sa 14:15-18:15",
+    "phone": "+5591989893792",
+    "shop": "hairdresser"
+  }
+},
+{
+  "type": "node",
+  "id": 13506622306,
+  "lat": -1.7448502,
+  "lon": -47.0633788,
+  "tags": {
+    "addr:street": "Rua Yamada",
+    "name": "hotel João Moura",
+    "tourism": "hotel"
+  }
+},
+{
+  "type": "node",
+  "id": 13675866702,
+  "lat": -1.7538902,
+  "lon": -47.0659419,
+  "tags": {
+    "addr:city": "Capitão Poço",
+    "addr:postcode": "68650000",
+    "amenity": "police",
+    "name": "Delegacia de Policia Civil",
+    "opening_hours": "24/7",
+    "operator": "Polícia Civil do Brasil",
+    "operator:wikidata": "Q206882",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 13792443601,
+  "lat": -1.6748969,
+  "lon": -47.0400067,
+  "tags": {
+    "addr:postcode": "68650-000",
+    "name": "Balneário Geladeira",
+    "tourism": "attraction"
+  }
+},
+{
+  "type": "way",
+  "id": 364203010,
+  "center": {
+    "lat": -1.7446599,
+    "lon": -47.0639987
+  },
+  "tags": {
+    "landuse": "recreation_ground",
+    "leisure": "park",
+    "name": "Praça da Alvorada"
+  }
+},
+{
+  "type": "way",
+  "id": 370650711,
+  "center": {
+    "lat": -1.7450758,
+    "lon": -47.0649152
+  },
+  "tags": {
+    "amenity": "place_of_worship",
+    "building": "church",
+    "denomination": "roman_catholic",
+    "name": "Igreja Nossa Senhora do Perpetuo Socorro",
+    "religion": "christian"
+  }
+},
+{
+  "type": "way",
+  "id": 634031685,
+  "center": {
+    "lat": -1.7464412,
+    "lon": -47.0575252
+  },
+  "tags": {
+    "landuse": "recreation_ground",
+    "leisure": "park",
+    "name": "Criandário de animais do Dr. Aldomar"
+  }
+},
+{
+  "type": "way",
+  "id": 635463142,
+  "center": {
+    "lat": -1.7484331,
+    "lon": -47.0592956
+  },
+  "tags": {
+    "landuse": "recreation_ground",
+    "leisure": "park",
+    "name": "Praça Igreja Matriz",
+    "surface": "grass_paver"
+  }
+},
+{
+  "type": "way",
+  "id": 655778651,
+  "center": {
+    "lat": -1.7448737,
+    "lon": -47.0644871
+  },
+  "tags": {
+    "landuse": "recreation_ground",
+    "leisure": "park",
+    "name": "Pracinha do Prefeitura"
+  }
+},
+{
+  "type": "way",
+  "id": 655778652,
+  "center": {
+    "lat": -1.7455761,
+    "lon": -47.0619831
+  },
+  "tags": {
+    "leisure": "park",
+    "name": "Pracinha do Rock"
+  }
+},
+{
+  "type": "way",
+  "id": 655778653,
+  "center": {
+    "lat": -1.7440077,
+    "lon": -47.0583354
+  },
+  "tags": {
+    "leisure": "park",
+    "name": "Centro de recreação comunitário da Igreja de Nossa Senhora dos Espinhos"
+  }
+},
+{
+  "type": "way",
+  "id": 655782093,
+  "center": {
+    "lat": -1.7459423,
+    "lon": -47.0540838
+  },
+  "tags": {
+    "landuse": "recreation_ground",
+    "leisure": "park",
+    "name": "Parque Jardim Tropical"
+  }
+},
+{
+  "type": "way",
+  "id": 682157473,
+  "center": {
+    "lat": -1.7502086,
+    "lon": -47.0591586
+  },
+  "tags": {
+    "access": "no",
+    "amenity": "parking",
+    "capacity": "15",
+    "description": "Estacionamento de ônibus escolares.",
+    "operator": "Onibus Escolar",
+    "parking": "surface",
+    "surface": "concrete"
+  }
+},
+{
+  "type": "way",
+  "id": 711153491,
+  "center": {
+    "lat": -1.7443941,
+    "lon": -47.0644093
+  },
+  "tags": {
+    "leisure": "park",
+    "name": "Praça da Alvorada - área de gramado"
+  }
+},
+{
+  "type": "way",
+  "id": 711153492,
+  "center": {
+    "lat": -1.7443954,
+    "lon": -47.0641873
+  },
+  "tags": {
+    "leisure": "park"
+  }
+},
+{
+  "type": "way",
+  "id": 711153493,
+  "center": {
+    "lat": -1.7443580,
+    "lon": -47.0639030
+  },
+  "tags": {
+    "leisure": "park"
+  }
+},
+{
+  "type": "way",
+  "id": 711153494,
+  "center": {
+    "lat": -1.7444812,
+    "lon": -47.0641297
+  },
+  "tags": {
+    "leisure": "park"
+  }
+},
+{
+  "type": "way",
+  "id": 711153495,
+  "center": {
+    "lat": -1.7444812,
+    "lon": -47.0643027
+  },
+  "tags": {
+    "leisure": "park"
+  }
+},
+{
+  "type": "way",
+  "id": 711153496,
+  "center": {
+    "lat": -1.7484279,
+    "lon": -47.0592931
+  },
+  "tags": {
+    "addr:city": "Capitão Poço",
+    "amenity": "place_of_worship",
+    "building": "yes",
+    "denomination": "roman_catholic",
+    "name": "Paróquia Santuário Santo Antônio Maria Zaccaria",
+    "religion": "christian",
+    "wikidata": "Q122688712"
+  }
+},
+{
+  "type": "way",
+  "id": 711153497,
+  "center": {
+    "lat": -1.7444335,
+    "lon": -47.0644680
+  },
+  "tags": {
+    "leisure": "park"
+  }
+},
+{
+  "type": "way",
+  "id": 711153498,
+  "center": {
+    "lat": -1.7446052,
+    "lon": -47.0644679
+  },
+  "tags": {
+    "leisure": "park"
+  }
+},
+{
+  "type": "way",
+  "id": 711153499,
+  "center": {
+    "lat": -1.7446182,
+    "lon": -47.0644321
+  },
+  "tags": {
+    "leisure": "park"
+  }
+},
+{
+  "type": "way",
+  "id": 711153500,
+  "center": {
+    "lat": -1.7444089,
+    "lon": -47.0640456
+  },
+  "tags": {
+    "amenity": "fountain"
+  }
+},
+{
+  "type": "way",
+  "id": 711153501,
+  "center": {
+    "lat": -1.7443847,
+    "lon": -47.0637856
+  },
+  "tags": {
+    "leisure": "park"
+  }
+},
+{
+  "type": "way",
+  "id": 711153503,
+  "center": {
+    "lat": -1.7445677,
+    "lon": -47.0639577
+  },
+  "tags": {
+    "leisure": "park"
+  }
+},
+{
+  "type": "way",
+  "id": 711153504,
+  "center": {
+    "lat": -1.7445286,
+    "lon": -47.0638797
+  },
+  "tags": {
+    "leisure": "park"
+  }
+},
+{
+  "type": "way",
+  "id": 711153505,
+  "center": {
+    "lat": -1.7445340,
+    "lon": -47.0637428
+  },
+  "tags": {
+    "leisure": "park"
+  }
+},
+{
+  "type": "way",
+  "id": 711153506,
+  "center": {
+    "lat": -1.7444622,
+    "lon": -47.0638046
+  },
+  "tags": {
+    "leisure": "park"
+  }
+},
+{
+  "type": "way",
+  "id": 711153507,
+  "center": {
+    "lat": -1.7446018,
+    "lon": -47.0638081
+  },
+  "tags": {
+    "leisure": "park"
+  }
+},
+{
+  "type": "way",
+  "id": 711153508,
+  "center": {
+    "lat": -1.7445989,
+    "lon": -47.0641534
+  },
+  "tags": {
+    "leisure": "park"
+  }
+},
+{
+  "type": "way",
+  "id": 723964366,
+  "center": {
+    "lat": -1.7395731,
+    "lon": -47.0718747
+  },
+  "tags": {
+    "leisure": "pitch",
+    "sport": "soccer"
+  }
+},
+{
+  "type": "way",
+  "id": 723964367,
+  "center": {
+    "lat": -1.7395676,
+    "lon": -47.0717872
+  },
+  "tags": {
+    "leisure": "park"
+  }
+},
+{
+  "type": "way",
+  "id": 723964369,
+  "center": {
+    "lat": -1.7419256,
+    "lon": -47.0688716
+  },
+  "tags": {
+    "leisure": "park"
+  }
+},
+{
+  "type": "way",
+  "id": 723964371,
+  "center": {
+    "lat": -1.7417791,
+    "lon": -47.0740232
+  },
+  "tags": {
+    "leisure": "pitch",
+    "sport": "soccer"
+  }
+},
+{
+  "type": "way",
+  "id": 723964372,
+  "center": {
+    "lat": -1.7417771,
+    "lon": -47.0741630
+  },
+  "tags": {
+    "leisure": "park"
+  }
+},
+{
+  "type": "way",
+  "id": 723964373,
+  "center": {
+    "lat": -1.7399645,
+    "lon": -47.0765592
+  },
+  "tags": {
+    "leisure": "pitch",
+    "sport": "soccer"
+  }
+},
+{
+  "type": "way",
+  "id": 723964374,
+  "center": {
+    "lat": -1.7399598,
+    "lon": -47.0764764
+  },
+  "tags": {
+    "leisure": "park"
+  }
+},
+{
+  "type": "way",
+  "id": 723964408,
+  "center": {
+    "lat": -1.7398921,
+    "lon": -47.0705091
+  },
+  "tags": {
+    "leisure": "pitch",
+    "sport": "soccer"
+  }
+},
+{
+  "type": "way",
+  "id": 749868177,
+  "center": {
+    "lat": -1.7364190,
+    "lon": -47.1757830
+  },
+  "tags": {
+    "leisure": "pitch",
+    "sport": "soccer"
+  }
+},
+{
+  "type": "way",
+  "id": 753731604,
+  "center": {
+    "lat": -1.7560588,
+    "lon": -47.0712190
+  },
+  "tags": {
+    "leisure": "park"
+  }
+},
+{
+  "type": "way",
+  "id": 759049535,
+  "center": {
+    "lat": -1.9087882,
+    "lon": -47.1552468
+  },
+  "tags": {
+    "leisure": "pitch",
+    "sport": "soccer"
+  }
+},
+{
+  "type": "way",
+  "id": 760812748,
+  "center": {
+    "lat": -2.4869712,
+    "lon": -47.1835401
+  },
+  "tags": {
+    "access": "yes",
+    "leisure": "pitch",
+    "sport": "soccer",
+    "surface": "grass"
+  }
+},
+{
+  "type": "way",
+  "id": 773569544,
+  "center": {
+    "lat": -2.4827552,
+    "lon": -47.1847200
+  },
+  "tags": {
+    "amenity": "place_of_worship",
+    "building": "yes",
+    "denomination": "roman_catholic",
+    "religion": "christian"
+  }
+},
+{
+  "type": "way",
+  "id": 1067743413,
+  "center": {
+    "lat": -1.7343164,
+    "lon": -47.0562162
+  },
+  "tags": {
+    "addr:city": "Capitão Poço",
+    "addr:postcode": "68650000",
+    "addr:street": "Travessa Pau Amarelo",
+    "addr:suburb": "Vila Nova",
+    "amenity": "university",
+    "internet_access": "yes",
+    "internet_access:fee": "no",
+    "name": "Universidade Federal Rural da Amazônia - Campus Capitão Poço",
+    "operator": "Ministério da Educação",
+    "operator:type": "public",
+    "website": "https://capitaopoco.ufra.edu.br/",
+    "wikidata": "Q20061641",
+    "wikipedia": "pt:Universidade Federal Rural da Amazônia"
+  }
+},
+{
+  "type": "way",
+  "id": 1377333122,
+  "center": {
+    "lat": -1.7347907,
+    "lon": -47.0571849
+  },
+  "tags": {
+    "access": "yes",
+    "leisure": "pitch",
+    "lit": "no",
+    "name": "Arena",
+    "sport": "soccer;beachvolleyball",
+    "surface": "sand"
+  }
+}
+
+  ]
+}

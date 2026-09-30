@@ -197,6 +197,69 @@ class EstabelecimentoApiTest extends ApiTestBase {
     }
 
     @Test
+    @DisplayName("cadastro manual entra aprovado, com a fonte \"Cadastro manual\" e contatos formatados")
+    void cadastroManual() throws Exception {
+        long categoriaId = idDaCategoria("Serviços");
+        DocumentContext criado = json(mockMvc.perform(post("/api/estabelecimentos")
+                        .header(HttpHeaders.AUTHORIZATION, ADMIN)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"nome": "Registro de teste", "categoriaId": %d,
+                                 "telefone": "91 3468 1888", "whatsapp": "91988887777",
+                                 "site": "www.exemplo.com.br", "latitude": -1.7447, "longitude": -47.0638}
+                                """.formatted(categoriaId)))
+                .andExpect(status().isCreated()));
+
+        assertThat(criado.read("$.situacao", String.class)).isEqualTo("APROVADO");
+        assertThat(criado.read("$.fonte", String.class)).isEqualTo("Cadastro manual");
+        assertThat(criado.read("$.telefone", String.class)).isEqualTo("(91) 3468-1888");
+        assertThat(criado.read("$.whatsapp", String.class)).isEqualTo("(91) 98888-7777");
+        assertThat(criado.read("$.site", String.class)).isEqualTo("https://www.exemplo.com.br");
+        assertThat(criado.read("$.localizacaoValidada", Boolean.class)).isTrue();
+
+        mockMvc.perform(get("/api/estabelecimentos/{id}", criado.read("$.id", Long.class)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.fonte").value("Cadastro manual"));
+    }
+
+    @Test
+    @DisplayName("recusa telefone incompleto e localização fora de Capitão Poço")
+    void validaTelefoneELocalizacao() throws Exception {
+        long categoriaId = idDaCategoria("Outros");
+        mockMvc.perform(post("/api/estabelecimentos")
+                        .header(HttpHeaders.AUTHORIZATION, ADMIN)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"nome\": \"Registro de teste\", \"categoriaId\": " + categoriaId
+                                + ", \"telefone\": \"919\"}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.mensagem").value(org.hamcrest.Matchers.containsString("incompleto")));
+
+        // coordenadas de Belém: fora do município
+        mockMvc.perform(post("/api/estabelecimentos")
+                        .header(HttpHeaders.AUTHORIZATION, ADMIN)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"nome\": \"Registro de teste\", \"categoriaId\": " + categoriaId
+                                + ", \"latitude\": -1.4558, \"longitude\": -48.4902}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.mensagem").value(org.hamcrest.Matchers.containsString("fora do município")));
+    }
+
+    @Test
+    @DisplayName("a busca também procura no endereço e entende sinônimos (farmácia = drogaria)")
+    void buscaPorEnderecoESinonimos() throws Exception {
+        long saude = idDaCategoria("Saúde");
+        cadastrarEstabelecimento("{\"nome\": \"Drogaria Teste\", \"categoriaId\": " + saude
+                + ", \"endereco\": \"Travessa de Teste, 10 - Centro\"}");
+
+        List<String> porSinonimo = json(mockMvc.perform(get("/api/estabelecimentos").param("busca", "farmácias")))
+                .read("$[*].nome");
+        assertThat(porSinonimo).containsExactly("Drogaria Teste");
+        List<String> porEndereco = json(mockMvc.perform(get("/api/estabelecimentos").param("busca", "travessa de teste")))
+                .read("$[*].nome");
+        assertThat(porEndereco).containsExactly("Drogaria Teste");
+    }
+
+    @Test
     @DisplayName("responde 404 para id inexistente e 400 para id inválido")
     void idsInvalidos() throws Exception {
         mockMvc.perform(get("/api/estabelecimentos/999999")).andExpect(status().isNotFound());

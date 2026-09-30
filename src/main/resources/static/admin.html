@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex, nofollow">
   <title>Área administrativa · RumoCap</title>
-  <meta name="theme-color" content="#ffffff">
+  <meta name="theme-color" content="#173f2f">
   <script src="js/tema.js"></script>
   <link rel="icon" href="img/logo.svg" type="image/svg+xml">
   <link rel="stylesheet" href="vendor/leaflet/leaflet.css">
@@ -53,7 +53,7 @@
         </span>
         <div>
           <h1>Área administrativa</h1>
-          <p>Entre para cadastrar e editar os estabelecimentos do guia.</p>
+          <p>Entre para revisar, cadastrar e editar os estabelecimentos do guia.</p>
         </div>
         <div class="alerta" id="erro-login" role="alert" hidden></div>
         <div class="campo">
@@ -74,17 +74,36 @@
 
     <!-- Painel de gerenciamento -->
     <section class="painel-admin" id="painel" hidden>
-      <div class="container">
-        <div class="painel-admin__cabecalho">
-          <h1>Gerenciar o guia</h1>
-          <p>Cadastre somente informações reais, confirmadas com cada estabelecimento.</p>
+      <div class="painel-admin__faixa">
+        <div class="container">
+          <div class="painel-admin__cabecalho">
+            <h1>Gerenciar o guia</h1>
+            <p>Confira os locais encontrados nas fontes públicas antes de publicá-los: só os aprovados aparecem no guia.</p>
+          </div>
+          <div class="resumo-admin" id="resumo-admin" aria-live="polite"></div>
         </div>
+      </div>
 
+      <div class="container">
         <div class="abas" role="tablist" aria-label="Seções da administração">
+          <button type="button" role="tab" id="aba-revisao" aria-controls="painel-revisao" aria-selected="true">
+            <svg class="icone" aria-hidden="true"><use href="img/icones.svg#clipboard-check"></use></svg>
+            Revisão <span class="abas__total abas__total--destaque" id="total-revisao">0</span>
+          </button>
           <button type="button" role="tab" id="aba-estabelecimentos" aria-controls="painel-estabelecimentos"
-                  aria-selected="true">
+                  aria-selected="false" tabindex="-1">
             <svg class="icone" aria-hidden="true"><use href="img/icones.svg#store"></use></svg>
             Estabelecimentos <span class="abas__total" id="total-estabelecimentos">0</span>
+          </button>
+          <button type="button" role="tab" id="aba-importar" aria-controls="painel-importar"
+                  aria-selected="false" tabindex="-1">
+            <svg class="icone" aria-hidden="true"><use href="img/icones.svg#download"></use></svg>
+            Importar dados
+          </button>
+          <button type="button" role="tab" id="aba-avisos" aria-controls="painel-avisos"
+                  aria-selected="false" tabindex="-1">
+            <svg class="icone" aria-hidden="true"><use href="img/icones.svg#message-square-warning"></use></svg>
+            Avisos <span class="abas__total" id="total-avisos">0</span>
           </button>
           <button type="button" role="tab" id="aba-categorias" aria-controls="painel-categorias"
                   aria-selected="false" tabindex="-1">
@@ -93,13 +112,92 @@
           </button>
         </div>
 
-        <div role="tabpanel" id="painel-estabelecimentos" aria-labelledby="aba-estabelecimentos">
+        <!-- Revisão de estabelecimentos -->
+        <div role="tabpanel" id="painel-revisao" aria-labelledby="aba-revisao">
+          <div class="painel-admin__intro">
+            <h2>Revisão de estabelecimentos</h2>
+            <p>
+              Locais encontrados nas fontes públicas que ainda precisam ser conferidos. Aprove os que estão corretos,
+              edite o que precisar e recuse o que não é um estabelecimento do guia. Recusados não voltam nas próximas importações.
+            </p>
+          </div>
+
           <div class="barra-ferramentas">
             <div class="campo-busca">
               <svg class="icone" aria-hidden="true"><use href="img/icones.svg#search"></use></svg>
-              <label for="filtro-texto" class="visualmente-oculto">Pesquisar pelo nome</label>
-              <input id="filtro-texto" type="search" placeholder="Pesquisar pelo nome..." autocomplete="off">
+              <label for="revisao-busca" class="visualmente-oculto">Pesquisar na revisão</label>
+              <input id="revisao-busca" type="search" placeholder="Nome, endereço ou telefone..." autocomplete="off">
             </div>
+            <label for="revisao-fonte" class="visualmente-oculto">Fonte</label>
+            <select id="revisao-fonte" class="seletor">
+              <option value="">Todas as fontes</option>
+              <option value="osm">OpenStreetMap</option>
+              <option value="cnes">CNES (Ministério da Saúde)</option>
+              <option value="cnefe">IBGE - CNEFE (Censo 2022)</option>
+            </select>
+            <label for="revisao-categoria" class="visualmente-oculto">Categoria</label>
+            <select id="revisao-categoria" class="seletor"></select>
+            <label for="revisao-alerta" class="visualmente-oculto">Alertas</label>
+            <select id="revisao-alerta" class="seletor">
+              <option value="">Todos os alertas</option>
+              <option value="duplicado">Possível duplicado</option>
+              <option value="sem-localizacao">Localização pendente</option>
+              <option value="com-contato">Com telefone ou site</option>
+              <option value="sem-alertas">Sem alertas</option>
+            </select>
+            <label for="revisao-localidade" class="visualmente-oculto">Bairro ou localidade</label>
+            <select id="revisao-localidade" class="seletor"></select>
+          </div>
+
+          <div class="barra-lote" id="barra-lote">
+            <label class="barra-lote__todos">
+              <input type="checkbox" id="revisao-todos">
+              Selecionar os exibidos
+            </label>
+            <span class="barra-lote__contagem" id="revisao-selecionados" aria-live="polite">Nenhum selecionado</span>
+            <div class="barra-lote__acoes">
+              <button type="button" class="botao botao--primario botao--pequeno" id="lote-aprovar" disabled>
+                <svg class="icone" aria-hidden="true"><use href="img/icones.svg#check"></use></svg>
+                Aprovar selecionados
+              </button>
+              <button type="button" class="botao botao--secundario botao--pequeno" id="lote-recusar" disabled>
+                <svg class="icone" aria-hidden="true"><use href="img/icones.svg#ban"></use></svg>
+                Recusar selecionados
+              </button>
+            </div>
+          </div>
+
+          <p class="resumo-resultados" id="revisao-resumo" aria-live="polite"></p>
+          <div class="lista-revisao" id="lista-revisao"></div>
+          <div class="mais-resultados" id="revisao-mais" hidden>
+            <button type="button" class="botao botao--secundario" id="revisao-botao-mais"></button>
+          </div>
+        </div>
+
+        <!-- Todos os estabelecimentos -->
+        <div role="tabpanel" id="painel-estabelecimentos" aria-labelledby="aba-estabelecimentos" hidden>
+          <div class="barra-ferramentas">
+            <div class="campo-busca">
+              <svg class="icone" aria-hidden="true"><use href="img/icones.svg#search"></use></svg>
+              <label for="filtro-texto" class="visualmente-oculto">Pesquisar</label>
+              <input id="filtro-texto" type="search" placeholder="Nome, endereço ou telefone..." autocomplete="off">
+            </div>
+            <label for="filtro-situacao" class="visualmente-oculto">Situação</label>
+            <select id="filtro-situacao" class="seletor">
+              <option value="PUBLICADO">No guia (aprovados)</option>
+              <option value="PENDENTE">Aguardando revisão</option>
+              <option value="ARQUIVADO">Arquivados</option>
+              <option value="RECUSADO">Recusados</option>
+              <option value="">Todas as situações</option>
+            </select>
+            <label for="filtro-fonte" class="visualmente-oculto">Fonte</label>
+            <select id="filtro-fonte" class="seletor">
+              <option value="">Todas as fontes</option>
+              <option value="manual">Cadastro manual</option>
+              <option value="osm">OpenStreetMap</option>
+              <option value="cnes">CNES (Ministério da Saúde)</option>
+              <option value="cnefe">IBGE - CNEFE (Censo 2022)</option>
+            </select>
             <label for="filtro-categoria" class="visualmente-oculto">Filtrar por categoria</label>
             <select id="filtro-categoria" class="seletor"></select>
             <button type="button" class="botao botao--primario" id="botao-novo">
@@ -107,9 +205,42 @@
               Novo estabelecimento
             </button>
           </div>
+          <p class="resumo-resultados" id="resumo-estabelecimentos" aria-live="polite"></p>
           <div id="lista-estabelecimentos" aria-live="polite"></div>
+          <div class="mais-resultados" id="estabelecimentos-mais" hidden>
+            <button type="button" class="botao botao--secundario" id="estabelecimentos-botao-mais"></button>
+          </div>
         </div>
 
+        <!-- Importação -->
+        <div role="tabpanel" id="painel-importar" aria-labelledby="aba-importar" hidden>
+          <div class="painel-admin__intro">
+            <h2>Levantamento em fontes públicas</h2>
+            <p>
+              A importação consulta a fonte, filtra o que não é comércio ou serviço, classifica nas categorias do guia e
+              procura duplicados. Nada é apagado: locais novos entram em "Aguardando revisão", locais já cadastrados
+              recebem só as informações que faltavam e as diferenças viram observações para você conferir.
+            </p>
+          </div>
+          <div class="grade-fontes" id="lista-fontes"></div>
+          <h3 class="subtitulo-admin">Histórico de importações</h3>
+          <div id="historico-importacoes"></div>
+        </div>
+
+        <!-- Avisos de informação incorreta -->
+        <div role="tabpanel" id="painel-avisos" aria-labelledby="aba-avisos" hidden>
+          <div class="painel-admin__intro">
+            <h2>Avisos de informação incorreta</h2>
+            <p>Mensagens enviadas pelos visitantes na página de cada estabelecimento. Confira, corrija o cadastro e marque como resolvido.</p>
+          </div>
+          <label class="opcao-inline">
+            <input type="checkbox" id="avisos-resolvidos">
+            Mostrar os já resolvidos
+          </label>
+          <div class="lista-avisos" id="lista-avisos"></div>
+        </div>
+
+        <!-- Categorias -->
         <div role="tabpanel" id="painel-categorias" aria-labelledby="aba-categorias" hidden>
           <form class="nova-categoria" id="form-categoria">
             <div class="campo">
@@ -121,7 +252,7 @@
                   Adicionar
                 </button>
               </div>
-              <p class="campo__ajuda">Uma categoria só pode ser excluída quando não possui estabelecimentos.</p>
+              <p class="campo__ajuda">Uma categoria só pode ser excluída quando não possui estabelecimentos (em nenhuma situação).</p>
             </div>
           </form>
           <ul class="lista-categorias" id="lista-categorias-admin"></ul>
@@ -134,7 +265,10 @@
   <dialog class="dialogo dialogo--largo" id="dialogo-estabelecimento" aria-labelledby="titulo-formulario">
     <form id="form-estabelecimento" class="dialogo__form" novalidate>
       <header class="dialogo__cabecalho">
-        <h2 id="titulo-formulario">Novo estabelecimento</h2>
+        <div>
+          <h2 id="titulo-formulario">Novo estabelecimento</h2>
+          <p class="dialogo__subtitulo" id="fonte-formulario" hidden></p>
+        </div>
         <button type="button" class="botao botao--fantasma botao--icone" data-fechar aria-label="Fechar">
           <svg class="icone" aria-hidden="true"><use href="img/icones.svg#x"></use></svg>
         </button>
@@ -142,6 +276,7 @@
 
       <div class="dialogo__corpo">
         <div class="alerta" id="erro-formulario" role="alert" hidden></div>
+        <div class="observacoes" id="observacoes-formulario" hidden></div>
 
         <fieldset class="grupo">
           <legend>Informações principais</legend>
@@ -158,7 +293,7 @@
             </div>
             <div class="campo campo--inteiro">
               <label for="campo-descricao">Descrição curta</label>
-              <textarea id="campo-descricao" name="descricao" rows="3" maxlength="400"
+              <textarea id="campo-descricao" name="descricao" rows="2" maxlength="400"
                         placeholder="O que o estabelecimento oferece, em poucas palavras"></textarea>
               <p class="campo__ajuda"><span id="contador-descricao">0</span>/400 caracteres</p>
               <p class="campo__erro" data-erro="descricao"></p>
@@ -171,28 +306,34 @@
           <div class="grade-form grade-form--duas">
             <div class="campo campo--inteiro">
               <label for="campo-endereco">Endereço</label>
-              <input id="campo-endereco" name="endereco" maxlength="255" placeholder="Rua, número e bairro" autocomplete="off">
+              <input id="campo-endereco" name="endereco" maxlength="255" placeholder="Rua, número - bairro" autocomplete="off">
               <p class="campo__erro" data-erro="endereco"></p>
             </div>
             <div class="campo">
-              <label for="campo-contato">Contato</label>
-              <textarea id="campo-contato" name="contato" rows="4" maxlength="500"></textarea>
-              <p class="campo__ajuda">
-                Um contato por linha, por exemplo:<br>
-                <code>Telefone: (91) 0000-0000</code><br>
-                <code>WhatsApp: (91) 90000-0000</code><br>
-                <code>@perfil</code> do Instagram ou e-mail
-              </p>
+              <label for="campo-telefone">Telefone</label>
+              <input id="campo-telefone" name="telefone" maxlength="40" inputmode="tel" placeholder="(91) 3468-0000" autocomplete="off">
+              <p class="campo__erro" data-erro="telefone"></p>
+            </div>
+            <div class="campo">
+              <label for="campo-whatsapp">WhatsApp</label>
+              <input id="campo-whatsapp" name="whatsapp" maxlength="40" inputmode="tel" placeholder="(91) 99999-9999" autocomplete="off">
+              <p class="campo__erro" data-erro="whatsapp"></p>
+            </div>
+            <div class="campo campo--inteiro">
+              <label for="campo-site">Site ou rede social</label>
+              <input id="campo-site" name="site" maxlength="255" placeholder="https://www.instagram.com/perfil" autocomplete="off">
+              <p class="campo__erro" data-erro="site"></p>
+            </div>
+            <div class="campo">
+              <label for="campo-contato">Outros contatos</label>
+              <textarea id="campo-contato" name="contato" rows="3" maxlength="500"></textarea>
+              <p class="campo__ajuda">Um por linha: e-mail, outro telefone ou rede social.</p>
               <p class="campo__erro" data-erro="contato"></p>
             </div>
             <div class="campo">
               <label for="campo-horario">Horário de funcionamento</label>
-              <textarea id="campo-horario" name="horario" rows="4" maxlength="500"></textarea>
-              <p class="campo__ajuda">
-                Uma linha por período, por exemplo:<br>
-                <code>Seg. a sex.: 8h às 18h</code><br>
-                <code>Sábado: 8h às 12h</code>
-              </p>
+              <textarea id="campo-horario" name="horario" rows="3" maxlength="500"></textarea>
+              <p class="campo__ajuda">Uma linha por período, ex.: <code>Seg. a sex.: 8h às 18h</code></p>
               <p class="campo__erro" data-erro="horario"></p>
             </div>
           </div>
@@ -227,6 +368,10 @@
               </button>
             </div>
           </div>
+          <label class="opcao-inline">
+            <input type="checkbox" id="campo-localizacao-validada" name="localizacaoValidada">
+            Localização conferida (a posição do marcador está correta)
+          </label>
         </fieldset>
 
         <fieldset class="grupo">
@@ -253,7 +398,11 @@
 
       <footer class="dialogo__rodape">
         <button type="button" class="botao botao--secundario" data-fechar>Cancelar</button>
-        <button type="submit" class="botao botao--primario" id="botao-salvar">
+        <button type="submit" class="botao botao--secundario" id="botao-salvar-aprovar" value="aprovar" hidden>
+          <svg class="icone" aria-hidden="true"><use href="img/icones.svg#check"></use></svg>
+          Salvar e aprovar
+        </button>
+        <button type="submit" class="botao botao--primario" id="botao-salvar" value="salvar">
           <svg class="icone" aria-hidden="true"><use href="img/icones.svg#circle-check"></use></svg>
           Salvar
         </button>
@@ -261,16 +410,17 @@
     </form>
   </dialog>
 
-  <!-- Confirmação (exclusões) -->
+  <!-- Confirmação -->
   <dialog class="dialogo" id="dialogo-confirmacao" aria-labelledby="titulo-confirmacao">
     <form method="dialog" class="dialogo__form">
       <div class="dialogo__corpo confirmacao">
-        <span class="confirmacao__icone">
+        <span class="confirmacao__icone" id="icone-confirmacao">
           <svg class="icone" aria-hidden="true"><use href="img/icones.svg#trash-2"></use></svg>
         </span>
         <div>
           <h2 id="titulo-confirmacao">Confirmar</h2>
           <p id="texto-confirmacao"></p>
+          <div id="detalhe-confirmacao"></div>
         </div>
       </div>
       <footer class="dialogo__rodape">

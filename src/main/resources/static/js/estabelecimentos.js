@@ -4,16 +4,23 @@ import {
   parametroDaUrl, plural, visualCategoria,
 } from './comum.js';
 
+/** Quantos cards aparecem de cada vez (o restante vem no botão "Mostrar mais"). */
+const POR_PAGINA = 60;
+
 const campoBusca = document.getElementById('busca');
 const filtroCategorias = document.getElementById('filtro-categorias');
 const resumo = document.getElementById('resumo');
 const lista = document.getElementById('lista-estabelecimentos');
+const areaMais = document.getElementById('mais-resultados');
+const botaoMais = document.getElementById('botao-mais');
 
 const filtros = {
   busca: parametroDaUrl('busca') ?? '',
   categoriaId: parametroDaUrl('categoria') ?? '',
 };
 let categorias = [];
+let resultados = [];
+let exibidos = 0;
 let ultimaConsulta = 0;
 let espera;
 
@@ -48,6 +55,8 @@ async function iniciar() {
     }
   });
 
+  botaoMais.addEventListener('click', () => mostrarMais());
+
   try {
     categorias = await api.listarCategorias();
   } catch {
@@ -61,9 +70,9 @@ async function iniciar() {
 }
 
 function renderizarFiltros() {
-  const todas = `
+  const todos = `
     <button type="button" class="chip" data-categoria="" aria-pressed="${filtros.categoriaId === ''}">
-      ${icone('list')} Todas
+      ${icone('layout-grid')} Todos
     </button>`;
   const chips = categorias.map((categoria) => {
     const visual = visualCategoria(categoria);
@@ -72,9 +81,10 @@ function renderizarFiltros() {
       <button type="button" class="chip" style="--cor-categoria:${visual.cor}"
               data-categoria="${categoria.id}" aria-pressed="${selecionada}">
         ${icone(visual.icone)} ${escapar(categoria.nome)}
+        <span class="chip__total">${categoria.totalEstabelecimentos}</span>
       </button>`;
   });
-  filtroCategorias.innerHTML = todas + chips.join('');
+  filtroCategorias.innerHTML = todos + chips.join('');
 }
 
 async function carregarEstabelecimentos() {
@@ -82,20 +92,26 @@ async function carregarEstabelecimentos() {
   atualizarUrl();
   lista.setAttribute('aria-busy', 'true');
   lista.innerHTML = esqueletos(6, 'card');
+  areaMais.hidden = true;
   resumo.textContent = 'Carregando...';
 
   try {
-    const estabelecimentos = await api.listarEstabelecimentos({
+    const encontrados = await api.listarEstabelecimentos({
       busca: filtros.busca,
       categoriaId: filtros.categoriaId,
     });
     if (consulta !== ultimaConsulta) return; // uma pesquisa mais recente já foi feita
 
+    resultados = encontrados;
+    exibidos = 0;
     // sem resultados, a mensagem do estado vazio já explica a situação
-    resumo.textContent = estabelecimentos.length ? descreverResultado(estabelecimentos.length) : '';
-    lista.innerHTML = estabelecimentos.length
-      ? estabelecimentos.map(cardEstabelecimento).join('')
-      : estadoVazio();
+    resumo.textContent = resultados.length ? descreverResultado(resultados.length) : '';
+    if (resultados.length) {
+      lista.innerHTML = '';
+      mostrarMais();
+    } else {
+      lista.innerHTML = estadoVazio();
+    }
   } catch (erro) {
     if (consulta !== ultimaConsulta) return;
     resumo.textContent = '';
@@ -103,6 +119,15 @@ async function carregarEstabelecimentos() {
   } finally {
     if (consulta === ultimaConsulta) lista.removeAttribute('aria-busy');
   }
+}
+
+function mostrarMais() {
+  const proximos = resultados.slice(exibidos, exibidos + POR_PAGINA);
+  lista.insertAdjacentHTML('beforeend', proximos.map(cardEstabelecimento).join(''));
+  exibidos += proximos.length;
+  const restantes = resultados.length - exibidos;
+  areaMais.hidden = restantes <= 0;
+  botaoMais.innerHTML = `${icone('list')} Mostrar mais ${Math.min(restantes, POR_PAGINA)} de ${restantes}`;
 }
 
 function descreverResultado(total) {
@@ -117,14 +142,14 @@ function estadoVazio() {
   if (!filtros.busca && !filtros.categoriaId) {
     return blocoVazio({
       icone: 'store',
-      titulo: 'Nenhum estabelecimento cadastrado ainda',
-      texto: 'Os estabelecimentos de Capitão Poço aparecerão aqui assim que forem cadastrados.',
+      titulo: 'Nenhum estabelecimento no guia ainda',
+      texto: 'Os estabelecimentos de Capitão Poço aparecem aqui depois de conferidos pela administração.',
     });
   }
   return blocoVazio({
     icone: 'search',
     titulo: 'Nenhum resultado encontrado',
-    texto: 'Tente outro nome ou escolha outra categoria.',
+    texto: 'Tente outro nome, um tipo de serviço (ex.: farmácia) ou escolha outra categoria.',
     acao: `<button type="button" class="botao botao--secundario" data-limpar-filtros>${icone('x')} Limpar filtros</button>`,
   });
 }

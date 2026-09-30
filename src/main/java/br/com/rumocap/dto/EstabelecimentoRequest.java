@@ -9,6 +9,9 @@ import jakarta.validation.constraints.Size;
 /**
  * Dados enviados pela área administrativa para cadastrar ou editar um estabelecimento.
  * A imagem é enviada separadamente, em POST /api/estabelecimentos/{id}/imagem.
+ *
+ * @param contato             outros contatos (e-mail, redes sociais), um por linha
+ * @param localizacaoValidada o administrador conferiu a posição no mapa
  */
 public record EstabelecimentoRequest(
 
@@ -25,7 +28,16 @@ public record EstabelecimentoRequest(
         @Size(max = 255, message = "O endereço deve ter no máximo 255 caracteres.")
         String endereco,
 
-        @Size(max = 500, message = "O contato deve ter no máximo 500 caracteres.")
+        @Size(max = 40, message = "O telefone deve ter no máximo 40 caracteres.")
+        String telefone,
+
+        @Size(max = 40, message = "O WhatsApp deve ter no máximo 40 caracteres.")
+        String whatsapp,
+
+        @Size(max = 255, message = "O site deve ter no máximo 255 caracteres.")
+        String site,
+
+        @Size(max = 500, message = "Os outros contatos devem ter no máximo 500 caracteres.")
         String contato,
 
         @Size(max = 500, message = "O horário deve ter no máximo 500 caracteres.")
@@ -37,5 +49,7 @@ public record EstabelecimentoRequest(
 
         @DecimalMin(value = "-180.0", message = "A longitude deve estar entre -180 e 180.")
         @DecimalMax(value = "180.0", message = "A longitude deve estar entre -180 e 180.")
-        Double longitude) {
+        Double longitude,
+
+        Boolean localizacaoValidada) {
 }

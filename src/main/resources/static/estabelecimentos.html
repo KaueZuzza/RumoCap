@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Estabelecimentos · RumoCap</title>
   <meta name="description" content="Lista de estabelecimentos comerciais e serviços de Capitão Poço (PA), com pesquisa e filtro por categoria.">
-  <meta name="theme-color" content="#ffffff">
+  <meta name="theme-color" content="#173f2f">
   <script src="js/tema.js"></script>
   <link rel="icon" href="img/logo.svg" type="image/svg+xml">
   <link rel="preload" href="fontes/source-serif-4-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
@@ -44,13 +44,13 @@
     <section class="pagina-cabecalho">
       <div class="container">
         <h1>Estabelecimentos</h1>
-        <p>Pesquise pelo nome ou filtre por categoria.</p>
+        <p>Pesquise pelo nome, pelo tipo de serviço ou pelo endereço, e filtre por categoria.</p>
 
         <div class="filtros">
           <div class="campo-busca" role="search">
             <svg class="icone" aria-hidden="true"><use href="img/icones.svg#search"></use></svg>
-            <label for="busca" class="visualmente-oculto">Pesquisar pelo nome</label>
-            <input id="busca" type="search" placeholder="Pesquisar pelo nome..." autocomplete="off">
+            <label for="busca" class="visualmente-oculto">Pesquisar por nome, categoria ou endereço</label>
+            <input id="busca" type="search" placeholder="Ex.: farmácia, Mercadinho Bom Jesus, Travessa Abdias Pereira" autocomplete="off">
           </div>
           <div class="chips" id="filtro-categorias" role="group" aria-label="Filtrar por categoria"></div>
         </div>
@@ -61,6 +61,9 @@
       <div class="container">
         <p class="resumo-resultados" id="resumo" aria-live="polite"></p>
         <div class="grade-cards" id="lista-estabelecimentos"></div>
+        <div class="mais-resultados" id="mais-resultados" hidden>
+          <button type="button" class="botao botao--secundario" id="botao-mais"></button>
+        </div>
       </div>
     </section>
   </main>
@@ -83,14 +86,14 @@
         </ul>
       </nav>
       <div>
-        <p class="rodape__titulo">Aviso</p>
-        <p class="rodape__nota">Portal informativo. Confirme horários e condições diretamente com cada estabelecimento.</p>
+        <p class="rodape__titulo">Sobre os dados</p>
+        <p class="rodape__nota">As informações vêm de fontes públicas e são conferidas pela administração. Podem mudar: confirme horários e condições com cada estabelecimento.</p>
         <a href="admin.html">
           <svg class="icone" aria-hidden="true"><use href="img/icones.svg#lock"></use></svg>
           Área administrativa
         </a>
       </div>
-      <p class="rodape__base">Mapas: OpenStreetMap e Esri. Dados do município: IBGE.</p>
+      <p class="rodape__base">Fontes: OpenStreetMap (ODbL), CNES/Ministério da Saúde e IBGE (Censo 2022). Mapas: OpenStreetMap e Esri. Dados do município: IBGE.</p>
     </div>
   </footer>
 </body>

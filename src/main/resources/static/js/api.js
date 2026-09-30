@@ -82,4 +82,6 @@ export const api = {
   listarEstabelecimentos: (filtros) => requisitar('/estabelecimentos' + parametros(filtros)),
   buscarEstabelecimento: (id) => requisitar(`/estabelecimentos/${encodeURIComponent(id)}`),
   listarMarcadores: (filtros) => requisitar('/estabelecimentos/mapa' + parametros(filtros)),
+  /** "Informação incorreta?": aviso enviado pelo visitante para a administração conferir. */
+  enviarRelato: (id, dados) => requisitar(`/estabelecimentos/${encodeURIComponent(id)}/relatos`, { metodo: 'POST', corpo: dados }),
 };

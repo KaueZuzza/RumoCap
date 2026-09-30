@@ -236,6 +236,32 @@ Invoke-RestMethod -Method Post -Uri http://localhost:8080/api/estabelecimentos -
 
 Erros seguem sempre o formato `{"status": 400, "mensagem": "...", "campos": {"nome": "..."}}`.
 
+## Importação de fontes públicas e revisão
+
+O painel (`/admin.html`) tem a aba **Importar dados**, que faz o levantamento de estabelecimentos reais
+de Capitão Poço em fontes abertas. Nada é inventado: cada cadastro guarda a `fonte` e o `url_fonte` de origem.
+
+| Fonte | O que traz | Licença |
+|---|---|---|
+| OpenStreetMap (Overpass) | comércios, serviços e pontos com coordenadas | ODbL |
+| CNES / DataSUS | estabelecimentos de saúde do município (código 150230) | dados abertos |
+| IBGE CNEFE 2022 | endereços não residenciais do Censo | dados abertos |
+
+Como funciona:
+
+- Cada registro importado é **categorizado automaticamente** e entra como **PENDENTE**. Só os
+  cadastros **aprovados** aparecem no site.
+- A importação **nunca apaga** nada: registros que já existem são apenas completados. Recusados não
+  voltam em importações futuras.
+- **Duplicados:** nome parecido, telefone igual ou proximidade no mapa marcam o registro como
+  *possível duplicado*, para decisão manual na revisão.
+- **Localização:** se a fonte não traz coordenadas confiáveis, o local fica com *localização pendente*:
+  aparece na lista, mas não no mapa, até alguém informar a posição em **Editar**.
+- Na aba **Revisão de estabelecimentos** há **Aprovar**, **Editar**, **Recusar** e **Excluir**, também
+  em lote. Depois de publicado, um cadastro pode ser **arquivado** (sai do site sem ser apagado).
+- A aba **Avisos** recebe os relatos de visitantes enviados pelo link *Informação incorreta?* da página
+  de cada estabelecimento.
+
 ## Como cadastrar um estabelecimento real
 
 1. **Levante os dados** com o próprio estabelecimento: nome, categoria, uma descrição curta do que oferece,

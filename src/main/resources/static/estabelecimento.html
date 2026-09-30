@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Estabelecimento · RumoCap</title>
-  <meta name="theme-color" content="#ffffff">
+  <meta name="theme-color" content="#173f2f">
   <script src="js/tema.js"></script>
   <link rel="icon" href="img/logo.svg" type="image/svg+xml">
   <link rel="stylesheet" href="vendor/leaflet/leaflet.css">
@@ -51,6 +51,48 @@
     </div>
   </main>
 
+  <!-- "Informação incorreta?": aviso enviado para a administração conferir -->
+  <dialog class="dialogo" id="dialogo-relato" aria-labelledby="titulo-relato">
+    <form class="dialogo__form" id="form-relato" novalidate>
+      <header class="dialogo__cabecalho">
+        <h2 id="titulo-relato">Informação incorreta?</h2>
+        <button type="button" class="botao botao--fantasma botao--icone" data-fechar aria-label="Fechar">
+          <svg class="icone" aria-hidden="true"><use href="img/icones.svg#x"></use></svg>
+        </button>
+      </header>
+      <div class="dialogo__corpo" id="corpo-relato">
+        <p class="campo__ajuda" id="descricao-relato">
+          Conte o que está errado ou desatualizado (telefone, endereço, horário, localização...).
+          A administração do guia confere antes de corrigir.
+        </p>
+        <div class="alerta" id="erro-relato" role="alert" hidden></div>
+        <div class="campo">
+          <label for="relato-mensagem">O que está incorreto? <span class="obrigatorio" aria-hidden="true">*</span></label>
+          <textarea id="relato-mensagem" name="mensagem" rows="4" minlength="10" maxlength="1000" required
+                    aria-describedby="descricao-relato"></textarea>
+          <p class="campo__erro" data-erro="mensagem"></p>
+        </div>
+        <div class="campo">
+          <label for="relato-contato">Seu contato <span class="opcional">(opcional)</span></label>
+          <input id="relato-contato" name="contato" maxlength="120" autocomplete="email"
+                 placeholder="E-mail ou telefone, caso a administração precise tirar uma dúvida">
+          <p class="campo__erro" data-erro="contato"></p>
+        </div>
+        <div class="campo-armadilha" aria-hidden="true">
+          <label for="relato-site">Não preencha este campo</label>
+          <input id="relato-site" name="site" tabindex="-1" autocomplete="off">
+        </div>
+      </div>
+      <footer class="dialogo__rodape" id="rodape-relato">
+        <button type="button" class="botao botao--secundario" data-fechar>Cancelar</button>
+        <button type="submit" class="botao botao--primario" id="botao-enviar-relato">
+          <svg class="icone" aria-hidden="true"><use href="img/icones.svg#send"></use></svg>
+          Enviar aviso
+        </button>
+      </footer>
+    </form>
+  </dialog>
+
   <footer class="rodape">
     <div class="container rodape__conteudo">
       <div>
@@ -69,14 +111,14 @@
         </ul>
       </nav>
       <div>
-        <p class="rodape__titulo">Aviso</p>
-        <p class="rodape__nota">Portal informativo. Confirme horários e condições diretamente com cada estabelecimento.</p>
+        <p class="rodape__titulo">Sobre os dados</p>
+        <p class="rodape__nota">As informações vêm de fontes públicas e são conferidas pela administração. Podem mudar: confirme horários e condições com cada estabelecimento.</p>
         <a href="admin.html">
           <svg class="icone" aria-hidden="true"><use href="img/icones.svg#lock"></use></svg>
           Área administrativa
         </a>
       </div>
-      <p class="rodape__base">Mapas: OpenStreetMap e Esri. Dados do município: IBGE.</p>
+      <p class="rodape__base">Fontes: OpenStreetMap (ODbL), CNES/Ministério da Saúde e IBGE (Censo 2022). Mapas: OpenStreetMap e Esri. Dados do município: IBGE.</p>
     </div>
   </footer>
 </body>
