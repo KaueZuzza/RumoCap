@@ -1,0 +1,16 @@
+# Build do Maven
+target/
+
+# Imagens enviadas pela área administrativa (dados locais; faça backup junto com o banco)
+uploads/
+
+# IDEs
+.idea/
+*.iml
+.vscode/
+
+# Logs
+*.log
+
+# Configuração local com as senhas (gerada por database/servidor.ps1; modelo em config/application.properties.example)
+config/application.properties

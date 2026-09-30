@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Área administrativa · RumoCap</title>
+  <meta name="theme-color" content="#0b1322">
+  <script src="js/tema.js"></script>
+  <link rel="icon" href="img/logo.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="vendor/leaflet/leaflet.css">
+  <link rel="stylesheet" href="css/estilo.css">
+  <link rel="stylesheet" href="css/admin.css">
+  <script src="vendor/leaflet/leaflet.js"></script>
+  <script type="module" src="js/admin.js"></script>
+</head>
+<body class="admin">
+  <header class="topo">
+    <div class="container topo__conteudo">
+      <a class="marca" href="index.html" aria-label="RumoCap, ir para o site">
+        <img src="img/logo.svg" alt="" width="40" height="40">
+        <span class="marca__texto">
+          <span class="marca__nome">Rumo<span>Cap</span></span>
+          <span class="marca__descricao">Área administrativa</span>
+        </span>
+      </a>
+      <div class="topo__acoes" id="acoes-sessao" hidden>
+        <span class="topo__usuario" id="usuario-logado"></span>
+        <a class="botao botao--fantasma" href="index.html" target="_blank" rel="noopener">
+          <svg class="icone" aria-hidden="true"><use href="img/icones.svg#external-link"></use></svg>
+          <span class="some-no-celular">Ver site</span>
+        </a>
+        <button type="button" class="botao botao--secundario" id="botao-sair">
+          <svg class="icone" aria-hidden="true"><use href="img/icones.svg#log-out"></use></svg>
+          Sair
+        </button>
+      </div>
+      <button type="button" class="topo-botao tema-botao" data-alternar-tema aria-label="Alternar entre modo claro e escuro">
+        <svg class="icone icone-lua" aria-hidden="true"><use href="img/icones.svg#moon"></use></svg>
+        <svg class="icone icone-sol" aria-hidden="true"><use href="img/icones.svg#sun"></use></svg>
+      </button>
+    </div>
+  </header>
+
+  <main id="conteudo">
+    <!-- Login -->
+    <section class="login" id="tela-login" hidden>
+      <form class="login__cartao" id="form-login">
+        <span class="login__icone">
+          <svg class="icone" aria-hidden="true"><use href="img/icones.svg#lock"></use></svg>
+        </span>
+        <div>
+          <h1>Área administrativa</h1>
+          <p>Entre para cadastrar e editar os estabelecimentos do guia.</p>
+        </div>
+        <div class="alerta" id="erro-login" role="alert" hidden></div>
+        <div class="campo">
+          <label for="login-usuario">Usuário</label>
+          <input id="login-usuario" name="usuario" autocomplete="username" required>
+        </div>
+        <div class="campo">
+          <label for="login-senha">Senha</label>
+          <input id="login-senha" name="senha" type="password" autocomplete="current-password" required>
+        </div>
+        <button type="submit" class="botao botao--primario botao--largo">Entrar</button>
+        <a class="login__voltar" href="index.html">
+          <svg class="icone" aria-hidden="true"><use href="img/icones.svg#arrow-left"></use></svg>
+          Voltar para o site
+        </a>
+      </form>
+    </section>
+
+    <!-- Painel de gerenciamento -->
+    <section class="painel-admin" id="painel" hidden>
+      <div class="container">
+        <div class="painel-admin__cabecalho">
+          <h1>Gerenciar o guia</h1>
+          <p>Cadastre somente informações reais, confirmadas com cada estabelecimento.</p>
+        </div>
+
+        <div class="abas" role="tablist" aria-label="Seções da administração">
+          <button type="button" role="tab" id="aba-estabelecimentos" aria-controls="painel-estabelecimentos"
+                  aria-selected="true">
+            <svg class="icone" aria-hidden="true"><use href="img/icones.svg#store"></use></svg>
+            Estabelecimentos <span class="abas__total" id="total-estabelecimentos">0</span>
+          </button>
+          <button type="button" role="tab" id="aba-categorias" aria-controls="painel-categorias"
+                  aria-selected="false" tabindex="-1">
+            <svg class="icone" aria-hidden="true"><use href="img/icones.svg#tag"></use></svg>
+            Categorias <span class="abas__total" id="total-categorias">0</span>
+          </button>
+        </div>
+
+        <div role="tabpanel" id="painel-estabelecimentos" aria-labelledby="aba-estabelecimentos">
+          <div class="barra-ferramentas">
+            <div class="campo-busca">
+              <svg class="icone" aria-hidden="true"><use href="img/icones.svg#search"></use></svg>
+              <label for="filtro-texto" class="visualmente-oculto">Pesquisar pelo nome</label>
+              <input id="filtro-texto" type="search" placeholder="Pesquisar pelo nome..." autocomplete="off">
+            </div>
+            <label for="filtro-categoria" class="visualmente-oculto">Filtrar por categoria</label>
+            <select id="filtro-categoria" class="seletor"></select>
+            <button type="button" class="botao botao--primario" id="botao-novo">
+              <svg class="icone" aria-hidden="true"><use href="img/icones.svg#plus"></use></svg>
+              Novo estabelecimento
+            </button>
+          </div>
+          <div id="lista-estabelecimentos" aria-live="polite"></div>
+        </div>
+
+        <div role="tabpanel" id="painel-categorias" aria-labelledby="aba-categorias" hidden>
+          <form class="nova-categoria" id="form-categoria">
+            <div class="campo">
+              <label for="nova-categoria">Nova categoria</label>
+              <div class="nova-categoria__linha">
+                <input id="nova-categoria" maxlength="80" placeholder="Nome da categoria" autocomplete="off" required>
+                <button type="submit" class="botao botao--primario">
+                  <svg class="icone" aria-hidden="true"><use href="img/icones.svg#plus"></use></svg>
+                  Adicionar
+                </button>
+              </div>
+              <p class="campo__ajuda">Uma categoria só pode ser excluída quando não possui estabelecimentos.</p>
+            </div>
+          </form>
+          <ul class="lista-categorias" id="lista-categorias-admin"></ul>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Formulário de cadastro/edição -->
+  <dialog class="dialogo dialogo--largo" id="dialogo-estabelecimento" aria-labelledby="titulo-formulario">
+    <form id="form-estabelecimento" class="dialogo__form" novalidate>
+      <header class="dialogo__cabecalho">
+        <h2 id="titulo-formulario">Novo estabelecimento</h2>
+        <button type="button" class="botao botao--fantasma botao--icone" data-fechar aria-label="Fechar">
+          <svg class="icone" aria-hidden="true"><use href="img/icones.svg#x"></use></svg>
+        </button>
+      </header>
+
+      <div class="dialogo__corpo">
+        <div class="alerta" id="erro-formulario" role="alert" hidden></div>
+
+        <fieldset class="grupo">
+          <legend>Informações principais</legend>
+          <div class="grade-form">
+            <div class="campo">
+              <label for="campo-nome">Nome <span class="obrigatorio" aria-hidden="true">*</span></label>
+              <input id="campo-nome" name="nome" maxlength="120" required autocomplete="off">
+              <p class="campo__erro" data-erro="nome"></p>
+            </div>
+            <div class="campo">
+              <label for="campo-categoria">Categoria <span class="obrigatorio" aria-hidden="true">*</span></label>
+              <select id="campo-categoria" name="categoriaId" required></select>
+              <p class="campo__erro" data-erro="categoriaId"></p>
+            </div>
+            <div class="campo campo--inteiro">
+              <label for="campo-descricao">Descrição curta</label>
+              <textarea id="campo-descricao" name="descricao" rows="3" maxlength="400"
+                        placeholder="O que o estabelecimento oferece, em poucas palavras"></textarea>
+              <p class="campo__ajuda"><span id="contador-descricao">0</span>/400 caracteres</p>
+              <p class="campo__erro" data-erro="descricao"></p>
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset class="grupo">
+          <legend>Endereço, contato e horário</legend>
+          <div class="grade-form grade-form--duas">
+            <div class="campo campo--inteiro">
+              <label for="campo-endereco">Endereço</label>
+              <input id="campo-endereco" name="endereco" maxlength="255" placeholder="Rua, número e bairro" autocomplete="off">
+              <p class="campo__erro" data-erro="endereco"></p>
+            </div>
+            <div class="campo">
+              <label for="campo-contato">Contato</label>
+              <textarea id="campo-contato" name="contato" rows="4" maxlength="500"></textarea>
+              <p class="campo__ajuda">
+                Um contato por linha, por exemplo:<br>
+                <code>Telefone: (91) 0000-0000</code><br>
+                <code>WhatsApp: (91) 90000-0000</code><br>
+                <code>@perfil</code> do Instagram ou e-mail
+              </p>
+              <p class="campo__erro" data-erro="contato"></p>
+            </div>
+            <div class="campo">
+              <label for="campo-horario">Horário de funcionamento</label>
+              <textarea id="campo-horario" name="horario" rows="4" maxlength="500"></textarea>
+              <p class="campo__ajuda">
+                Uma linha por período, por exemplo:<br>
+                <code>Seg. a sex.: 8h às 18h</code><br>
+                <code>Sábado: 8h às 12h</code>
+              </p>
+              <p class="campo__erro" data-erro="horario"></p>
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset class="grupo">
+          <legend>Localização no mapa</legend>
+          <p class="campo__ajuda">
+            Clique no mapa para marcar o local (o marcador pode ser arrastado), use sua localização atual
+            ou cole nos campos as coordenadas ou o link do local no Google Maps.
+          </p>
+          <div class="mapa-seletor" id="mapa-formulario" role="region" aria-label="Mapa para escolher a localização"></div>
+          <div class="coordenadas">
+            <div class="campo">
+              <label for="campo-latitude">Latitude</label>
+              <input id="campo-latitude" name="latitude" inputmode="decimal" autocomplete="off" placeholder="Ex.: -1.7447">
+              <p class="campo__erro" data-erro="latitude"></p>
+            </div>
+            <div class="campo">
+              <label for="campo-longitude">Longitude</label>
+              <input id="campo-longitude" name="longitude" inputmode="decimal" autocomplete="off" placeholder="Ex.: -47.0638">
+              <p class="campo__erro" data-erro="longitude"></p>
+            </div>
+            <div class="coordenadas__acoes">
+              <button type="button" class="botao botao--secundario" id="botao-minha-localizacao">
+                <svg class="icone" aria-hidden="true"><use href="img/icones.svg#locate-fixed"></use></svg>
+                Usar minha localização
+              </button>
+              <button type="button" class="botao botao--fantasma" id="botao-limpar-localizacao">
+                <svg class="icone" aria-hidden="true"><use href="img/icones.svg#map-pin-off"></use></svg>
+                Remover
+              </button>
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset class="grupo">
+          <legend>Imagem ou logo <span class="opcional">(opcional)</span></legend>
+          <div class="imagem-editor">
+            <div class="imagem-editor__previa" id="previa-imagem"></div>
+            <div class="imagem-editor__acoes">
+              <div class="imagem-editor__botoes">
+                <button type="button" class="botao botao--secundario" id="botao-escolher-imagem"></button>
+                <button type="button" class="botao botao--fantasma" id="botao-remover-imagem" hidden>
+                  <svg class="icone" aria-hidden="true"><use href="img/icones.svg#trash-2"></use></svg>
+                  Remover imagem
+                </button>
+              </div>
+              <p class="campo__ajuda">
+                PNG, JPG ou WEBP de até 5 MB. Fotos grandes são reduzidas automaticamente.
+                Use apenas imagens autorizadas pelo estabelecimento.
+              </p>
+              <input type="file" id="campo-imagem" accept="image/png,image/jpeg,image/webp" hidden>
+            </div>
+          </div>
+        </fieldset>
+      </div>
+
+      <footer class="dialogo__rodape">
+        <button type="button" class="botao botao--secundario" data-fechar>Cancelar</button>
+        <button type="submit" class="botao botao--primario" id="botao-salvar">
+          <svg class="icone" aria-hidden="true"><use href="img/icones.svg#circle-check"></use></svg>
+          Salvar
+        </button>
+      </footer>
+    </form>
+  </dialog>
+
+  <!-- Confirmação (exclusões) -->
+  <dialog class="dialogo" id="dialogo-confirmacao" aria-labelledby="titulo-confirmacao">
+    <form method="dialog" class="dialogo__form">
+      <div class="dialogo__corpo confirmacao">
+        <span class="confirmacao__icone">
+          <svg class="icone" aria-hidden="true"><use href="img/icones.svg#trash-2"></use></svg>
+        </span>
+        <div>
+          <h2 id="titulo-confirmacao">Confirmar</h2>
+          <p id="texto-confirmacao"></p>
+        </div>
+      </div>
+      <footer class="dialogo__rodape">
+        <button type="button" class="botao botao--secundario" data-cancelar>Cancelar</button>
+        <button type="submit" class="botao botao--perigo" value="confirmar" id="botao-confirmar">Confirmar</button>
+      </footer>
+    </form>
+  </dialog>
+
+  <!-- Texto (renomear categoria) -->
+  <dialog class="dialogo" id="dialogo-texto" aria-labelledby="titulo-dialogo-texto">
+    <form method="dialog" class="dialogo__form">
+      <header class="dialogo__cabecalho">
+        <h2 id="titulo-dialogo-texto">Renomear</h2>
+      </header>
+      <div class="dialogo__corpo">
+        <div class="campo">
+          <label for="campo-dialogo-texto" id="rotulo-dialogo-texto">Nome</label>
+          <input id="campo-dialogo-texto" maxlength="80" required autocomplete="off">
+        </div>
+      </div>
+      <footer class="dialogo__rodape">
+        <button type="button" class="botao botao--secundario" data-cancelar>Cancelar</button>
+        <button type="submit" class="botao botao--primario" value="confirmar">Salvar</button>
+      </footer>
+    </form>
+  </dialog>
+</body>
+</html>

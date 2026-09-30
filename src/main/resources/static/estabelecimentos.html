@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Estabelecimentos · RumoCap</title>
+  <meta name="description" content="Lista de estabelecimentos comerciais e serviços de Capitão Poço (PA), com pesquisa e filtro por categoria.">
+  <meta name="theme-color" content="#0b1322">
+  <script src="js/tema.js"></script>
+  <link rel="icon" href="img/logo.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="css/estilo.css">
+  <script type="module" src="js/estabelecimentos.js"></script>
+</head>
+<body>
+  <a class="pular-conteudo" href="#conteudo">Pular para o conteúdo</a>
+
+  <header class="topo">
+    <div class="container topo__conteudo">
+      <a class="marca" href="index.html" aria-label="RumoCap, página inicial">
+        <img src="img/logo.svg" alt="" width="40" height="40">
+        <span class="marca__texto">
+          <span class="marca__nome">Rumo<span>Cap</span></span>
+          <span class="marca__descricao">Guia Comercial de Capitão Poço</span>
+        </span>
+      </a>
+      <button type="button" class="topo-botao tema-botao" data-alternar-tema aria-label="Alternar entre modo claro e escuro">
+        <svg class="icone icone-lua" aria-hidden="true"><use href="img/icones.svg#moon"></use></svg>
+        <svg class="icone icone-sol" aria-hidden="true"><use href="img/icones.svg#sun"></use></svg>
+      </button>
+      <button type="button" class="topo-botao menu-botao" aria-label="Abrir menu" aria-expanded="false" aria-controls="menu-principal">
+        <svg class="icone" aria-hidden="true"><use href="img/icones.svg#menu"></use></svg>
+      </button>
+      <nav id="menu-principal" class="menu" aria-label="Menu principal">
+        <a href="index.html"><svg class="icone" aria-hidden="true"><use href="img/icones.svg#house"></use></svg>Início</a>
+        <a href="estabelecimentos.html" aria-current="page"><svg class="icone" aria-hidden="true"><use href="img/icones.svg#store"></use></svg>Estabelecimentos</a>
+        <a href="mapa.html"><svg class="icone" aria-hidden="true"><use href="img/icones.svg#map"></use></svg>Mapa</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="conteudo">
+    <section class="pagina-cabecalho">
+      <div class="container">
+        <h1>Estabelecimentos</h1>
+        <p>Pesquise pelo nome ou filtre por categoria.</p>
+
+        <div class="filtros">
+          <div class="campo-busca" role="search">
+            <svg class="icone" aria-hidden="true"><use href="img/icones.svg#search"></use></svg>
+            <label for="busca" class="visualmente-oculto">Pesquisar pelo nome</label>
+            <input id="busca" type="search" placeholder="Pesquisar pelo nome..." autocomplete="off">
+          </div>
+          <div class="chips" id="filtro-categorias" role="group" aria-label="Filtrar por categoria"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="secao secao--compacta" aria-label="Resultados">
+      <div class="container">
+        <p class="resumo-resultados" id="resumo" aria-live="polite"></p>
+        <div class="grade-cards" id="lista-estabelecimentos"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="rodape">
+    <div class="container rodape__conteudo">
+      <div class="rodape__marca">
+        <img src="img/logo.svg" alt="" width="30" height="30">
+        <span><strong>RumoCap</strong> · Guia Comercial de Capitão Poço – PA</span>
+      </div>
+      <p class="rodape__nota">Portal informativo. Confirme horários e condições diretamente com cada estabelecimento.</p>
+      <a href="admin.html">
+        <svg class="icone" aria-hidden="true"><use href="img/icones.svg#lock"></use></svg>
+        Área administrativa
+      </a>
+    </div>
+  </footer>
+</body>
+</html>

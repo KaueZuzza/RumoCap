@@ -1,0 +1,21 @@
+# Modelo da configuracao local do RumoCap.
+#
+# O script "database\servidor.ps1 criar" gera config/application.properties com
+# senhas aleatorias. Para criar a mao, copie este arquivo para
+# config/application.properties e troque os valores entre < >.
+#
+# config/application.properties NAO vai para o Git (.gitignore).
+# Variaveis de ambiente com o mesmo nome tem prioridade sobre este arquivo.
+
+# Senha do usuario "rumocap" no PostgreSQL (a mesma usada em criar-banco.sql)
+RUMOCAP_DB_PASSWORD=<senha do banco>
+
+# Login da area administrativa (admin.html)
+RUMOCAP_ADMIN_USERNAME=admin
+RUMOCAP_ADMIN_PASSWORD=<senha forte da administracao>
+
+# Opcionais (os valores abaixo sao os padroes)
+# RUMOCAP_DB_URL=jdbc:postgresql://localhost:5434/rumocap
+# RUMOCAP_DB_USERNAME=rumocap
+# RUMOCAP_UPLOAD_DIR=uploads
+# RUMOCAP_PORT=8080
