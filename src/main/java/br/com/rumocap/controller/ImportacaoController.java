@@ -1,6 +1,7 @@
 package br.com.rumocap.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -41,5 +42,11 @@ public class ImportacaoController {
     @PostMapping("/{fonte}")
     public ImportacaoResponse importar(@PathVariable("fonte") String fonte) {
         return importacaoService.importar(fonte);
+    }
+
+    /** Reaplica a regra de duplicados aos cadastros que aguardam revisão. */
+    @PostMapping("/reavaliar-duplicados")
+    public Map<String, Integer> reavaliarDuplicados() {
+        return importacaoService.reavaliarDuplicados();
     }
 }

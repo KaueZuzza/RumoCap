@@ -208,6 +208,16 @@ class LevantamentoApiTest extends ApiTestBase {
                 .param("busca", "Dental Pro Dent").param("fonte", "cnefe").header(HttpHeaders.AUTHORIZATION, ADMIN)));
         assertThat(duplicado.read("$[0].duplicadoDe.nome", String.class)).isEqualTo("Pro Dent");
         assertThat(duplicado.read("$[0].duplicadoDe.motivo", String.class)).contains("mesmo nome");
+
+        // reavaliar com a mesma regra não muda nada nem duplica a observação
+        DocumentContext reavaliacao = json(mockMvc.perform(post("/api/admin/importacoes/reavaliar-duplicados")
+                .header(HttpHeaders.AUTHORIZATION, ADMIN)));
+        // 2 do CNEFE + 1 marcado já na importação do CNES (CAF e Central de Regulação: mesmo telefone e prédio)
+        assertThat(reavaliacao.read("$.possiveisDuplicados", Integer.class)).isEqualTo(3);
+        assertThat(reavaliacao.read("$.alterados", Integer.class)).isZero();
+        DocumentContext depois = json(mockMvc.perform(get("/api/admin/estabelecimentos")
+                .param("busca", "Dental Pro Dent").param("fonte", "cnefe").header(HttpHeaders.AUTHORIZATION, ADMIN)));
+        assertThat(depois.read("$[0].duplicadoDe.nome", String.class)).isEqualTo("Pro Dent");
     }
 
     @Test

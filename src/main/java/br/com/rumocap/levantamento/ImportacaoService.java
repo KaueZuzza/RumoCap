@@ -306,6 +306,54 @@ public class ImportacaoService {
     }
 
     /** Acrescenta uma linha às observações da revisão, sem repetir e sem passar do limite da coluna. */
+    /**
+     * Reaplica a regra de duplicados atual aos cadastros PENDENTES já gravados
+     * (útil depois de ajustar a regra). Cada cadastro é comparado só com os
+     * anteriores, como na importação. Nada é apagado nem aprovado.
+     *
+     * @return quantos pendentes ficaram marcados e quantos mudaram
+     */
+    public Map<String, Integer> reavaliarDuplicados() {
+        return transacao.execute(status -> {
+            List<Estabelecimento> todos = new ArrayList<>(estabelecimentoRepository.findAll());
+            todos.sort((a, b) -> Long.compare(a.getId(), b.getId()));
+            Duplicados indice = new Duplicados(List.of());
+            int marcados = 0;
+            int alterados = 0;
+            for (Estabelecimento estabelecimento : todos) {
+                if (estabelecimento.getSituacao() == SituacaoRevisao.PENDENTE) {
+                    Optional<Semelhanca> semelhante = indice.maisSemelhante(Perfil.de(estabelecimento), estabelecimento.getId());
+                    Long anterior = estabelecimento.getDuplicadoDeId();
+                    removerObservacoesDeDuplicado(estabelecimento);
+                    estabelecimento.setDuplicadoDeId(null);
+                    if (semelhante.isPresent()) {
+                        Estabelecimento parecido = semelhante.get().existente();
+                        estabelecimento.setDuplicadoDeId(parecido.getId());
+                        adicionarObservacao(estabelecimento, "Possível duplicado de \"" + parecido.getNome() + "\" ("
+                                + parecido.getFonte() + "): " + semelhante.get().motivo() + ".");
+                        marcados++;
+                    }
+                    if (!Objects.equals(anterior, estabelecimento.getDuplicadoDeId())) {
+                        alterados++;
+                    }
+                }
+                indice.adicionar(estabelecimento);
+            }
+            return Map.of("possiveisDuplicados", marcados, "alterados", alterados);
+        });
+    }
+
+    private static void removerObservacoesDeDuplicado(Estabelecimento estabelecimento) {
+        String atual = estabelecimento.getObservacaoRevisao();
+        if (atual == null) {
+            return;
+        }
+        String restante = String.join("\n", atual.lines()
+                .filter(linha -> !linha.startsWith("Possível duplicado de "))
+                .toList());
+        estabelecimento.setObservacaoRevisao(restante.isBlank() ? null : restante);
+    }
+
     static void adicionarObservacao(Estabelecimento estabelecimento, String observacao) {
         String atual = estabelecimento.getObservacaoRevisao();
         if (atual != null && atual.lines().anyMatch(linha -> linha.equals(observacao))) {
