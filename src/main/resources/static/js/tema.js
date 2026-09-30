@@ -8,7 +8,7 @@
 (function () {
   var CHAVE_TEMA = 'rumocap.tema';
   var CHAVE_SESSAO = 'rumocap.sessao.iniciada';
-  var COR_BARRA = { light: '#0b1322', dark: '#0b1322' };
+  var COR_BARRA = { light: '#ffffff', dark: '#1d1e1b' };
   var raiz = document.documentElement;
 
   function ler(armazenamento, chave) {

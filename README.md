@@ -83,6 +83,7 @@ RumoCap/
 │   │           ├── css/                     estilo.css e admin.css
 │   │           ├── js/                      api.js, comum.js, tema.js (claro/escuro), abertura.js
 │   │           │                            (carregamento e apresentação), municipio.js (IBGE) e um script por página
+│   │           ├── fontes/                  Source Serif 4 e Source Sans 3 (licença OFL)
 │   │           ├── img/                     logo.svg e icones.svg
 │   │           └── vendor/leaflet/          biblioteca do mapa
 │   └── test/                     testes automatizados

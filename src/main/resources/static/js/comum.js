@@ -39,19 +39,19 @@ export function plural(quantidade, singular, pluralTexto) {
 /* ---------- Aparência das categorias ---------- */
 
 const VISUAL_CATEGORIAS = {
-  'alimentacao': { icone: 'utensils', cor: '#c2410c' },
-  'saude': { icone: 'stethoscope', cor: '#b91c1c' },
-  'mercados': { icone: 'shopping-basket', cor: '#15803d' },
-  'moda e beleza': { icone: 'shirt', cor: '#be185d' },
-  'tecnologia': { icone: 'smartphone', cor: '#1d4ed8' },
-  'servicos': { icone: 'briefcase', cor: '#6d28d9' },
-  'casa e construcao': { icone: 'hammer', cor: '#b45309' },
-  'automotivo': { icone: 'car', cor: '#0e7490' },
-  'outros': { icone: 'layout-grid', cor: '#475569' },
+  'alimentacao': { icone: 'utensils', cor: '#b5541c' },
+  'saude': { icone: 'stethoscope', cor: '#a8352c' },
+  'mercados': { icone: 'shopping-basket', cor: '#3f7a3a' },
+  'moda e beleza': { icone: 'shirt', cor: '#a2446d' },
+  'tecnologia': { icone: 'smartphone', cor: '#35609a' },
+  'servicos': { icone: 'briefcase', cor: '#6a4f8f' },
+  'casa e construcao': { icone: 'hammer', cor: '#8c6522' },
+  'automotivo': { icone: 'car', cor: '#2d6e78' },
+  'outros': { icone: 'layout-grid', cor: '#5f625a' },
 };
 
 /** Cores para categorias criadas depois pela área administrativa. */
-const CORES_EXTRAS = ['#0f766e', '#7e22ce', '#9a3412', '#0369a1', '#be123c', '#4d7c0f'];
+const CORES_EXTRAS = ['#1f5d45', '#7a4f7f', '#91502a', '#3a5f86', '#9c3f4f', '#5b6e2c'];
 
 /** Ícone e cor de uma categoria. Categorias novas recebem o ícone "tag". */
 export function visualCategoria(categoria) {

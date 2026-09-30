@@ -1,16 +1,9 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" role="img" aria-label="RumoCap">
-  <defs>
-    <linearGradient id="rumocap-fundo" x1="4" y1="2" x2="44" y2="46" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#14b8a6"/>
-      <stop offset=".5" stop-color="#0f5f5a"/>
-      <stop offset="1" stop-color="#0b1a2e"/>
-    </linearGradient>
-  </defs>
-  <rect width="48" height="48" rx="13" fill="url(#rumocap-fundo)"/>
+  <rect width="48" height="48" rx="11" fill="#1f5d45"/>
   <!-- "Rumo": uma trilha que parte de um ponto e chega ao destino (Capitão Poço) -->
-  <path d="M12.5 37.5c6.5 0 4.5-8.5 11-8.5s4.5-6.8 10-7.2" fill="none" stroke="#fff" stroke-width="3"
+  <path d="M12.5 37.5c6.5 0 4.5-8.5 11-8.5s4.5-6.8 10-7.2" fill="none" stroke="#f6f4ef" stroke-width="3"
         stroke-linecap="round" stroke-dasharray=".01 4.7"/>
-  <circle cx="12.5" cy="37.5" r="3.2" fill="#99f6e4"/>
-  <path d="M34 5.5c-3.9 0-7 3-7 6.8 0 4.9 5.9 10.2 6.5 10.7a.8.8 0 0 0 1 0c.6-.5 6.5-5.8 6.5-10.7 0-3.8-3.1-6.8-7-6.8Z" fill="#fb923c"/>
-  <circle cx="34" cy="12.3" r="2.6" fill="#0b1a2e"/>
+  <circle cx="12.5" cy="37.5" r="3.2" fill="#f6f4ef"/>
+  <path d="M34 5.5c-3.9 0-7 3-7 6.8 0 4.9 5.9 10.2 6.5 10.7a.8.8 0 0 0 1 0c.6-.5 6.5-5.8 6.5-10.7 0-3.8-3.1-6.8-7-6.8Z" fill="#ef8b47"/>
+  <circle cx="34" cy="12.3" r="2.6" fill="#1f5d45"/>
 </svg>

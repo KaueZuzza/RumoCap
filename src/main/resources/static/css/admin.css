@@ -9,16 +9,12 @@
   align-items: center;
   gap: 6px;
   margin-right: 6px;
-  color: var(--escuro-texto-2);
-  font-size: 0.9rem;
+  color: var(--texto-3);
+  font-size: 0.92rem;
 }
 .topo__usuario .icone { width: 16px; height: 16px; }
 
-/* Botões sobre o topo escuro */
-.topo .botao--fantasma { color: var(--escuro-texto-2); }
-.topo .botao--fantasma:hover:not(:disabled) { background: rgb(255 255 255 / 0.08); color: #fff; }
-.topo .botao--secundario { background: rgb(255 255 255 / 0.06); border-color: var(--escuro-borda); color: #fff; box-shadow: none; }
-.topo .botao--secundario:hover:not(:disabled) { background: rgb(255 255 255 / 0.12); border-color: rgb(255 255 255 / 0.22); }
+.topo .botao { min-height: 38px; padding-block: 7px; }
 
 @media (max-width: 640px) {
   .topo__usuario, .some-no-celular { display: none; }
@@ -35,7 +31,7 @@
   min-height: calc(100vh - var(--altura-topo));
   min-height: calc(100dvh - var(--altura-topo));
   padding: 32px 16px;
-  background: radial-gradient(800px 420px at 50% -10%, var(--primaria-suave), transparent 70%);
+  background: var(--fundo);
 }
 
 .login__cartao {
@@ -44,7 +40,7 @@
   width: min(420px, 100%);
   padding: 32px;
   border: 1px solid var(--borda);
-  border-radius: 20px;
+  border-radius: var(--raio-lg);
   background: var(--superficie);
   box-shadow: var(--sombra-2);
 }
@@ -52,14 +48,14 @@
 .login__icone {
   display: grid;
   place-items: center;
-  width: 52px; height: 52px;
-  border-radius: 14px;
-  background: var(--primaria-suave);
+  width: 44px; height: 44px;
+  border: 1px solid var(--borda);
+  border-radius: 50%;
   color: var(--primaria-texto);
 }
-.login__icone .icone { width: 26px; height: 26px; }
+.login__icone .icone { width: 22px; height: 22px; }
 
-.login h1 { font-size: 1.45rem; font-weight: 800; letter-spacing: -0.02em; }
+.login h1 { font-size: 1.6rem; }
 .login__cartao p { margin-top: 4px; color: var(--texto-3); }
 
 .login__voltar {
@@ -116,7 +112,7 @@
 /* ---------- Painel ---------- */
 
 .painel-admin { padding-block: 32px 64px; }
-.painel-admin__cabecalho h1 { font-size: 1.7rem; font-weight: 800; letter-spacing: -0.03em; }
+.painel-admin__cabecalho h1 { font-size: 2rem; }
 .painel-admin__cabecalho p { margin-top: 4px; color: var(--texto-3); }
 
 .abas {
@@ -264,11 +260,12 @@
   display: grid;
   place-items: center;
   flex-shrink: 0;
-  width: 42px; height: 42px;
-  border-radius: 11px;
-  background: var(--cat-suave);
+  width: 38px; height: 38px;
+  border: 1px solid var(--borda);
+  border-radius: 50%;
   color: var(--cat-cor);
 }
+.categoria-item__icone .icone { width: 19px; height: 19px; }
 
 .categoria-item__texto { flex: 1; min-width: 0; }
 .categoria-item__texto strong { display: block; }
@@ -283,13 +280,13 @@
   padding: 0;
   overflow: hidden;
   border: 0;
-  border-radius: 18px;
+  border-radius: 14px;
   background: var(--superficie);
   color: var(--texto);
   box-shadow: 0 30px 80px -20px rgb(0 0 0 / 0.45);
 }
 .dialogo--largo { width: min(900px, calc(100vw - 24px)); }
-.dialogo::backdrop { background: rgb(15 23 42 / 0.55); backdrop-filter: blur(2px); }
+.dialogo::backdrop { background: rgb(20 21 18 / 0.55); }
 
 .dialogo__form { display: flex; flex-direction: column; max-height: calc(100dvh - 24px); }
 
@@ -301,7 +298,7 @@
   padding: 16px 22px;
   border-bottom: 1px solid var(--borda);
 }
-.dialogo__cabecalho h2 { font-size: 1.2rem; font-weight: 800; }
+.dialogo__cabecalho h2 { font-size: 1.35rem; }
 
 .dialogo__corpo { display: grid; gap: 26px; padding: 22px; overflow-y: auto; }
 
@@ -378,7 +375,7 @@
   background: var(--perigo-fundo);
   color: var(--perigo-texto);
 }
-.confirmacao h2 { font-size: 1.15rem; font-weight: 800; }
+.confirmacao h2 { font-size: 1.3rem; }
 .confirmacao p { margin-top: 6px; color: var(--texto-2); }
 
 .carregando {
